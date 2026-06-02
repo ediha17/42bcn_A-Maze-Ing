@@ -11,13 +11,17 @@ def main() -> None:
                 clean_ln: str = line.strip()
                 if not clean_ln or clean_ln.startswith("#")
                     continue
+                if not "=" in clean_ln or clean_ln.count("=") != 1:
+                    print(f"Error: Invalid syntax in line: '{clean_ln}'")
+                    return
+                else:
+                    key: str
+                    value: str
+                    key, value = clean_ln.split("=")
+                    key = key.strip()
+                    value = value.strip()
     except Exception as e:
-        raise etry
-
-
-
-
-
+        print(f"Error: {e}")
 
 
 if __name__ == "__main__":
