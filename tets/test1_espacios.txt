@@ -1,0 +1,7 @@
+WIDTH    =    20   
+HEIGHT= 15
+
+      ENTRY = 0 , 1  
+EXIT  = 19, 13
+OUTPUT_FILE =    maze_espacios.txt
+ PERFECT=  True

@@ -1,0 +1,13 @@
+# Tamaño del laberinto (20x15 es un tamaño estándar)
+WIDTH=20
+HEIGHT=15
+
+# Coordenadas (x,y)
+# Entrada en la parte superior izquierda
+ENTRY=0,1
+# Salida en la parte inferior derecha
+EXIT=19,13
+
+# Configuracion extra
+OUTPUT_FILE=maze_standard.txt
+PERFECT=True

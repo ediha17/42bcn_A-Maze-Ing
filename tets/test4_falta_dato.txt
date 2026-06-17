@@ -1,0 +1,8 @@
+# Me he olvidado de poner donde esta la salida
+WIDTH=20
+HEIGHT=15
+ENTRY=0,1
+OUTPUT_FILE=maze.txt
+PERFECT=True
+COLOR=RED
+DIFICULTAD=HARD
