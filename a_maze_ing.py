@@ -2,11 +2,11 @@
 #                                                                             #
 #                                                        :::      ::::::::    #
 #    a_maze_ing.py                                     :+:      :+:    :+:    #
-#                                                    +:+ +:+         +:+      #
+#mazegen                                                    +:+ +:+         +:+      #
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 15:34:41 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/17 21:20:14 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/22 18:19:03 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -14,6 +14,7 @@ import sys
 from typing import IO, Optional
 from src import parser
 from src import conf
+from mazegen.mazegen import generate_maze
 
 
 def main(ac: int, av: list[str]) -> int:
@@ -36,6 +37,7 @@ def main(ac: int, av: list[str]) -> int:
             return (1)
         print("✅ Los datos son válidos. Voy a generar el mapa...")
         maze = conf.init_maze(data.width, data.height)
+        generate_maze(maze, data.width, data.height)
         print(f"DEBUG: Filas totales esperadas (HEIGHT): {data.height}")
         print(f"DEBUG: Filas reales en la lista (len(maze)): {len(maze)}")
         conf.set_entry_exit(maze, data.entry, data.exit)
