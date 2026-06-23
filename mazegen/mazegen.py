@@ -6,7 +6,7 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/22 17:46:50 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/22 18:13:15 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/23 15:10:23 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -36,3 +36,19 @@ def DFS(maze: list[list[str]], x: int, y: int,
             maze[y + coords[i][1] // 2][x + coords[i][0] // 2] = ' '
             DFS(maze, x + coords[i][0], y + coords[i][1], width, height)
         i += 1
+
+
+def draw_pattern_42(maze: list[list[str]], start_x: int, start_y: int) -> None:
+    pattern = ["11111", "10101", "11101", "10101", "11111"]
+    y = 0
+    while y < len(pattern):
+        x = 0
+        while x < len(pattern[y]):
+            if pattern[y][x] == '1':
+                maze[start_y + y][start_x + x] = '|'
+            x += 1
+        y += 1
+
+
+def check_collision(start_x: int, start_y: int, pos: list[int]) -> bool:
+    return (start_x <= pos[0] < start_x + 5) and (start_y <= pos[1] < start_y + 5)
