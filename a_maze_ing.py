@@ -6,7 +6,7 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 15:34:41 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/22 18:19:03 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/23 13:56:33 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -33,15 +33,10 @@ def main(ac: int, av: list[str]) -> int:
             map = parser.ft_parser(fd)
             data = conf.init_conf(map)
         if (data is None):
-            print("🛑 El programa se detuvo aquí porque data es None.")
             return (1)
-        print("✅ Los datos son válidos. Voy a generar el mapa...")
-        maze = conf.init_maze(data.width, data.height)
-        generate_maze(maze, data.width, data.height)
-        print(f"DEBUG: Filas totales esperadas (HEIGHT): {data.height}")
-        print(f"DEBUG: Filas reales en la lista (len(maze)): {len(maze)}")
-        conf.set_entry_exit(maze, data.entry, data.exit)
-        print("✅ Mapa generado en memoria. Voy a imprimirlo...")
+        maze = conf.init_maze(data.WIDTH, data.HEIGHT)
+        generate_maze(maze, data.WIDTH, data.HEIGHT)
+        conf.set_entry_exit(maze, list(data.ENTRY), list(data.EXIT))
         conf.print_map(maze)
     except FileNotFoundError:
         print(f"Error: The file '{av[1]}' was not found.")

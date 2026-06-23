@@ -6,37 +6,46 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 15:42:49 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/17 21:29:35 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/23 14:03:26 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
-from typing import Optional
+from typing import Optional, Tuple
+from pydantic import BaseModel, Field, field_validator
 from src import parser
 
 
-class MazeConfig:
-    def __init__(self, map: dict, ent: list[int], ext: list[int]) -> None:
-        self.width = map["WIDTH"]
-        self.height = map["HEIGHT"]
-        self.entry = ent
-        self.exit = ext
-        self.output_file = map["OUTPUT_FILE"]
-        self.perfect = (map["PERFECT"] == "True")
+class MazeConfig(BaseModel):
+    WIDTH: int = Field(gt=0)
+    HEIGHT: int = Field(gt=0)
+    ENTRY: Tuple[int, int]
+    EXIT: Tuple[int, int]
+    OUTPUT_FILE: str
+    PERFECT: bool
+
+    @field_validator('ENTRY', 'EXIT', mode='before')
+    @classmethod
+    def validate_coords(cls: object, v: str) -> Optional[tuple]:
+        if isinstance(v, str):
+            res = parser.ft_parser_coords(v)
+            if (res[0] == -1):
+                raise ValueError("Coordenadas inválidas")
+            return tuple(res)
+        return (v)
+
 
 
 def init_conf(map: dict) -> Optional[MazeConfig]:
-    ent: list[int]
-    ex: list[int]
-
     if (not parser.ft_parser_map(map)):
         return (None)
-    ent = parser.ft_parser_coords(map["ENTRY"])
-    ex = parser.ft_parser_coords(map["EXIT"])
-    if (ent[0] == -1 or ex[0] == -1):
-        print("Error: Invalid ENTRY or EXIT")
+    if (not parser.check_patern42(map["WIDTH"], map["HEIGHT"])):
         return (None)
-    parser.check_patern42(map["WIDTH"], map["HEIGHT"])
-    return (MazeConfig(map, ent, ex))
+    try:
+        map['PERFECT'] = (map['PERFECT'] == "True")
+        return (MazeConfig(**map))
+    except Exception as e:
+        print(f"Error de validación Pydantic: {e}")
+        return (None)
 
 
 def init_maze(width: int, height: int) -> list[list[str]]:
