@@ -1,19 +1,19 @@
 # *************************************************************************** #
 #                                                                             #
 #                                                        :::      ::::::::    #
-#    a_maze_ing.py                                     :+:      :+:    :+:    #
+#    a_maze_ing.py                                      :+:      :+:    :+:    #
 #                                                    +:+ +:+         +:+      #
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 15:34:41 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/23 14:55:25 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/23 21:26:45 by ehorvat          ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
 import sys
 from typing import IO, Optional
-from src import parser
-from src import conf
+from src import parser, conf
+from src.bfs_path_finder import bfs_shortest_path
 from mazegen.mazegen import check_collision, draw_pattern_42, generate_maze
 
 
@@ -47,6 +47,15 @@ def main(ac: int, av: list[str]) -> int:
             EXIT = [data.WIDTH - 1, data.HEIGHT - 2]
         conf.set_entry_exit(maze, list(data.ENTRY), list(data.EXIT))
         conf.print_map(maze)
+
+        solution = bfs_shortest_path(maze, ENTRY[0], ENTRY[1],
+                                     EXIT[0], EXIT[1])
+        if solution:
+            print(f"Camino más corto encontrado: {solution}")
+        else:
+            print("No se ha encontrado ninguna ruta válida"
+                  "(quizás el patrón 42 o una pared bloquean el paso).")
+
     except FileNotFoundError:
         print(f"Error: The file '{av[1]}' was not found.")
         return (1)
