@@ -1,21 +1,26 @@
 # *************************************************************************** #
 #                                                                             #
 #                                                        :::      ::::::::    #
-#    a_maze_ing.py                                      :+:      :+:    :+:    #
+#    a_maze_ing.py                                     :+:      :+:    :+:    #
 #                                                    +:+ +:+         +:+      #
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 15:34:41 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/23 21:26:45 by ehorvat          ###   ########.fr        #
+#    Updated: 2026/06/23 21:43:22 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
 import sys
+import random
 from typing import IO, Optional
 from src import parser, conf
 from src.bfs_path_finder import bfs_shortest_path
 from mazegen.mazegen import check_collision, draw_pattern_42, generate_maze
 
+
+def coords_to_seed(entry: tuple[int, int], exit_val: tuple[int, int]) -> int:
+    seed = (entry[0] * 1000) + (entry[1] * 100000) + (exit_val[0] * 10) + (exit_val[1] * 10000)
+    return (seed)
 
 def main(ac: int, av: list[str]) -> int:
     fd: bytes
@@ -34,6 +39,8 @@ def main(ac: int, av: list[str]) -> int:
             data = conf.init_conf(map)
         if (data is None):
             return (1)
+        seed = coords_to_seed(data.ENTRY, data.EXIT)
+        random.seed(seed)
         maze = conf.init_maze(data.WIDTH, data.HEIGHT)
         generate_maze(maze, data.WIDTH, data.HEIGHT)
         draw_pattern_42(maze, 2, 2)
@@ -47,7 +54,6 @@ def main(ac: int, av: list[str]) -> int:
             EXIT = [data.WIDTH - 1, data.HEIGHT - 2]
         conf.set_entry_exit(maze, list(data.ENTRY), list(data.EXIT))
         conf.print_map(maze)
-
         solution = bfs_shortest_path(maze, ENTRY[0], ENTRY[1],
                                      EXIT[0], EXIT[1])
         if solution:
@@ -55,7 +61,6 @@ def main(ac: int, av: list[str]) -> int:
         else:
             print("No se ha encontrado ninguna ruta válida"
                   "(quizás el patrón 42 o una pared bloquean el paso).")
-
     except FileNotFoundError:
         print(f"Error: The file '{av[1]}' was not found.")
         return (1)

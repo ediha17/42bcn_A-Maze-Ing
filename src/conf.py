@@ -6,7 +6,7 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 15:42:49 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/23 14:03:26 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/24 11:44:37 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -71,6 +71,18 @@ def set_entry_exit(maze: list[list[str]], ent: list[int],
                    ext: list[int]) -> None:
     maze[ent[1]][ent[0]] = 'x'
     maze[ext[1]][ext[0]] = 'o'
+    if (ent[0] == 0):
+        maze[ent[1]][1] = ' '
+    elif (ent[1] == 0):
+        maze[1][ent[0]] = ' '
+    if (ext[0] == len(maze[0]) - 1):
+        maze[ext[1]][ext[0] - 1] = ' '
+        if ((ext[0] - 1) % 2 == 0):
+            maze[ext[1]][ext[0] - 2] = ' '
+    if (ext[1] == len(maze) - 1):
+        maze[ext[1] - 1][ext[0]] = ' '
+        if ((ext[1] - 1) % 2 == 0):
+            maze[ext[1] - 2][ext[0]] = ' '
     return (None)
 
 

@@ -6,7 +6,7 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/22 17:46:50 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/23 15:10:23 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/24 11:37:47 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -25,16 +25,20 @@ def DFS(maze: list[list[str]], x: int, y: int,
     coords: list[tuple[int, int]]
     i: int
 
-    coords = [(0, 2), (0, -2), (2, 0), (-2, 0)]
+    coords = [(2, 0), (-2, 0), (0, -2), (0, 2)]
     random.shuffle(coords)
     i = 0
     while (i < len(coords)):
-        if (x + coords[i][0] > 0 and x + coords[i][0] < width and
-            y + coords[i][1] > 0 and y + coords[i][1] < height and
-                maze[y + coords[i][1]][x + coords[i][0]] == '|'):
-            maze[y + coords[i][1]][x + coords[i][0]] = ' '
-            maze[y + coords[i][1] // 2][x + coords[i][0] // 2] = ' '
-            DFS(maze, x + coords[i][0], y + coords[i][1], width, height)
+        next_x = x + coords[i][0]
+        next_y = y + coords[i][1]
+        if (next_x > 0 and next_x < width - 1 and
+            next_y > 0 and next_y < height - 1 and
+                maze[next_y][next_x] == '|'):
+            wall_x = x + (coords[i][0] // 2)
+            wall_y = y + (coords[i][1] // 2)
+            maze[wall_y][wall_x] = ' '
+            maze[next_y][next_x] = ' '
+            DFS(maze, next_x, next_y, width, height)
         i += 1
 
 
