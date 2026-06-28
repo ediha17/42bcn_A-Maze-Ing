@@ -6,7 +6,7 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/22 17:46:50 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/24 11:37:47 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/28 13:43:12 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -14,7 +14,7 @@ import random
 
 
 def generate_maze(maze: list[list[str]], width: int, height: int) -> None:
-    maze[1][1] = ' '
+    maze[0][0] = ' '
 
     DFS(maze, 1, 1, width, height)
 
