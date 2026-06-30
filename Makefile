@@ -14,6 +14,8 @@ run:
 debug:
 	poetry run python -m pdb $(SCRIPT) $(DEFAULT_CONF)
 
+test:
+	poetry run python -m pytest tests/ -v
 clean:
 	rm -rf __pycache__
 	rm -rf src/__pycache__
