@@ -6,8 +6,12 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/22 18:17:20 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/22 18:17:20 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/30 09:00:00 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
+
+from mazegen.mazegen import MazeGenerator
+
+__all__ = ['MazeGenerator']
 
 
