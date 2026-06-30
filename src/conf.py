@@ -1,15 +1,3 @@
-# *************************************************************************** #
-#                                                                             #
-#                                                        :::      ::::::::    #
-#    conf.py                                            :+:      :+:    :+:    #
-#                                                    +:+ +:+         +:+      #
-#    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
-#                                                +#+#+#+#+#+   +#+            #
-#    Created: 2026/06/17 15:42:49 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/30 16:14:15 by ehorvat          ###   ########.fr        #
-#                                                                             #
-# *************************************************************************** #
-
 from typing import Optional, Tuple
 from pydantic import BaseModel, Field, field_validator
 from src import parser
@@ -48,17 +36,7 @@ class MazeConfig(BaseModel):
 
 
 def init_conf(map: dict) -> Optional[MazeConfig]:
-    """Validate a parsed config dict and return a MazeConfig instance.
-
-    Args:
-        map: Dict produced by ft_parser().
-
-    Returns:
-        A MazeConfig on success, or None if validation fails.
-    """
     if (not parser.ft_parser_map(map)):
-        return (None)
-    if (not parser.check_patern42(map["WIDTH"], map["HEIGHT"])):
         return (None)
 
     if map["WIDTH"] % 2 == 0:

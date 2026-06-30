@@ -1,17 +1,4 @@
-# *************************************************************************** #
-#                                                                             #
-#                                                        :::      ::::::::    #
-#    a_maze_ing.py                                      :+:      :+:    :+:    #
-#                                                    +:+ +:+         +:+      #
-#    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
-#                                                +#+#+#+#+#+   +#+            #
-#    Created: 2026/06/17 15:34:41 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/30 21:01:33 by ehorvat          ###   ########.fr        #
-#                                                                             #
-# *************************************************************************** #
-
 import sys
-import random
 from typing import IO, Optional
 from src import parser, conf
 from src.output import (maze_to_hex_grid, grid_to_cell_coords,
@@ -74,12 +61,13 @@ def load_maze(filepath: str) -> Optional[tuple]:
         start_cx = (num_cells_x - 7) // 2
         start_cy = (num_cells_y - 5) // 2
 
-        if (MazeGenerator.check_collision(start_cx, start_cy, ENTRY)):
-            print("WARNING: ENTRY movida por conflicto con patron 42.")
-            ENTRY = [0, 1]
-        if (MazeGenerator.check_collision(start_cx, start_cy, EXIT)):
-            print("WARNING: EXIT movida por conflicto con patron 42.")
-            EXIT = [data.WIDTH - 1, data.HEIGHT - 2]
+        if (data.WIDTH >= 7 and data.HEIGHT >= 5):
+            if (MazeGenerator.check_collision(start_cx, start_cy, ENTRY)):
+                print("WARNING: ENTRY movida por conflicto con patron 42.")
+                ENTRY = [0, 1]
+            if (MazeGenerator.check_collision(start_cx, start_cy, EXIT)):
+                print("WARNING: EXIT movida por conflicto con patron 42.")
+                EXIT = [data.WIDTH - 1, data.HEIGHT - 2]
 
         conf.set_entry_exit(maze, ENTRY, EXIT)
         hex_grid = maze_to_hex_grid(maze, data.WIDTH, data.HEIGHT)
@@ -142,32 +130,34 @@ def print_colored_maze(maze: list[list[str]],
                        path_coords: set[tuple[int, int]],
                        show_path: bool, wall_color: str) -> None:
 
-    # Calculamos exactamente dónde está la caja de 7x5
     width = len(maze[0])
     height = len(maze)
-    start_cx = (width - 7) // 2
-    start_cy = (height - 5) // 2
 
-    if start_cx % 2 == 0:
-        start_cx += 1
-    if start_cy % 2 == 0:
-        start_cy += 1
+    # Comprobamos si el laberinto es apto para tener el 42
+    has_42 = (width >= 7 and height >= 5)
+
+    if has_42:
+        start_cx = (width - 7) // 2
+        start_cy = (height - 5) // 2
+        if start_cx % 2 == 0:
+            start_cx += 1
+        if start_cy % 2 == 0:
+            start_cy += 1
 
     y = 0
     while y < len(maze):
         row_str = ""
         x = 0
         while x < len(maze[y]):
-            # Comprobamos si la coordenada actual pertenece a la caja del 42
-            is_in_42 = (start_cx <= x
-                        < start_cx + 7) and (start_cy <= y < start_cy + 5)
+            # Solo marcamos is_in_42 como True si has_42 es True
+            is_in_42 = has_42 and (start_cx <= x < start_cx + 7) and (start_cy <= y < start_cy + 5)
 
             # 1. Pintar Entrada y Salida
             if maze[y][x] == 'x':
                 row_str += COLORS["verde"] + "🟢" + COLORS["reset"]
             elif maze[y][x] == 'o':
                 row_str += COLORS["rojo"] + "🔴" + COLORS["reset"]
-            # 2. Pintar el camino (si está activado)
+            # 2. Pintar el camino
             elif show_path and (x, y) in path_coords:
                 row_str += COLORS["bg_azul"] + "  " + COLORS["reset"]
             # 3. Pintar Paredes
