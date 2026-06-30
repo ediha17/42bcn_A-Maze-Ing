@@ -6,7 +6,7 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 15:34:41 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/30 15:42:14 by ehorvat          ###   ########.fr        #
+#    Updated: 2026/06/30 21:01:33 by ehorvat          ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -16,7 +16,7 @@ from typing import IO, Optional
 from src import parser, conf
 from src.output import (maze_to_hex_grid, grid_to_cell_coords,
                         bfs_cell_path, write_output_file)
-from mazegen.mazegen import check_collision, draw_pattern_42, generate_maze
+from mazegen.mazegen import MazeGenerator
 
 # Colores para el laberinto
 COLORS = {
@@ -40,15 +40,6 @@ def coords_to_seed(entry: tuple[int, int], exit_val: tuple[int, int]) -> int:
 
 
 def load_maze(filepath: str) -> Optional[tuple]:
-    """Load a config file, generate the maze and compute the solution.
-
-    Args:
-        filepath: Path to a KEY=VALUE config file.
-
-    Returns:
-        Tuple (data, maze, hex_grid, ENTRY, EXIT, solution) on success,
-        or None if the file is missing or the config is invalid.
-    """
     fd: bytes
     f: IO[bytes]
     raw: dict
@@ -68,25 +59,36 @@ def load_maze(filepath: str) -> Optional[tuple]:
             data = conf.init_conf(raw)
         if (data is None):
             return (None)
+
         seed = coords_to_seed(data.ENTRY, data.EXIT)
-        random.seed(seed)
-        maze = conf.init_maze(data.WIDTH, data.HEIGHT)
-        generate_maze(maze, data.WIDTH, data.HEIGHT)
-        draw_pattern_42(maze, 2, 2)
+
+        generator = MazeGenerator(data.WIDTH, data.HEIGHT, seed, data.PERFECT)
+        generator.generate()
+        maze = generator.get_maze()
+
         ENTRY = list(data.ENTRY)
         EXIT = list(data.EXIT)
-        if (check_collision(2, 2, ENTRY)):
+
+        num_cells_x = data.WIDTH // 2
+        num_cells_y = data.HEIGHT // 2
+        start_cx = (num_cells_x - 7) // 2
+        start_cy = (num_cells_y - 5) // 2
+
+        if (MazeGenerator.check_collision(start_cx, start_cy, ENTRY)):
             print("WARNING: ENTRY movida por conflicto con patron 42.")
             ENTRY = [0, 1]
-        if (check_collision(2, 2, EXIT)):
+        if (MazeGenerator.check_collision(start_cx, start_cy, EXIT)):
             print("WARNING: EXIT movida por conflicto con patron 42.")
             EXIT = [data.WIDTH - 1, data.HEIGHT - 2]
+
         conf.set_entry_exit(maze, ENTRY, EXIT)
         hex_grid = maze_to_hex_grid(maze, data.WIDTH, data.HEIGHT)
         entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH, data.HEIGHT)
         exit_cell = grid_to_cell_coords(EXIT, data.WIDTH, data.HEIGHT)
         solution = bfs_cell_path(hex_grid, entry_cell, exit_cell)
+
         return (data, maze, hex_grid, ENTRY, EXIT, solution)
+
     except FileNotFoundError:
         print(f"Error: The file '{filepath}' was not found.")
         return (None)
@@ -140,11 +142,26 @@ def print_colored_maze(maze: list[list[str]],
                        path_coords: set[tuple[int, int]],
                        show_path: bool, wall_color: str) -> None:
 
+    # Calculamos exactamente dónde está la caja de 7x5
+    width = len(maze[0])
+    height = len(maze)
+    start_cx = (width - 7) // 2
+    start_cy = (height - 5) // 2
+
+    if start_cx % 2 == 0:
+        start_cx += 1
+    if start_cy % 2 == 0:
+        start_cy += 1
+
     y = 0
     while y < len(maze):
         row_str = ""
         x = 0
         while x < len(maze[y]):
+            # Comprobamos si la coordenada actual pertenece a la caja del 42
+            is_in_42 = (start_cx <= x
+                        < start_cx + 7) and (start_cy <= y < start_cy + 5)
+
             # 1. Pintar Entrada y Salida
             if maze[y][x] == 'x':
                 row_str += COLORS["verde"] + "🟢" + COLORS["reset"]
@@ -155,8 +172,7 @@ def print_colored_maze(maze: list[list[str]],
                 row_str += COLORS["bg_azul"] + "  " + COLORS["reset"]
             # 3. Pintar Paredes
             elif maze[y][x] == '|':
-                # El "42" está fijo en (2,2) hasta (8,6).
-                if 2 <= x < 9 and 2 <= y < 7:
+                if is_in_42:
                     row_str += COLORS["amarillo"] + "██" + COLORS["reset"]
                 else:
                     row_str += COLORS[wall_color] + "██" + COLORS["reset"]
