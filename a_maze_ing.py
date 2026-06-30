@@ -127,7 +127,11 @@ def run_menu(filepath: str) -> int:
             print("\nSaliendo...")
             return (0)
         if (choice == '1'):
-            new_path = input("Ruta del nuevo config: ").strip()
+            try:
+                new_path = input("Ruta del nuevo config: ").strip()
+            except (EOFError, KeyboardInterrupt):
+                print("\nSaliendo...")
+                return (0)
             result = load_maze(new_path)
             if (result is None):
                 print("Error al cargar. Se mantiene el mapa actual.")
