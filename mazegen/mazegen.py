@@ -10,6 +10,7 @@ class MazeGenerator:
         self._width: int
         self._height: int
         self._perfect: bool
+        self._seed: Optional[int]
         self._maze: list[list[str]]
 
         self._width = width

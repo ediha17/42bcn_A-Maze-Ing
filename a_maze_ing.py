@@ -1,4 +1,5 @@
 import sys
+import random
 from typing import IO, Optional
 from src import parser, conf
 from src.output import (maze_to_hex_grid, grid_to_cell_coords,
@@ -16,13 +17,6 @@ COLORS = {
     "reset": "\033[0m",
     "bg_azul": "\033[44m"
 }
-
-
-def coords_to_seed(entry: tuple[int, int], exit_val: tuple[int, int]) -> int:
-    """Derive a deterministic seed from entry and exit coordinates."""
-    seed = (entry[0] * 1000) + (entry[1] * 100000) + \
-           (exit_val[0] * 10) + (exit_val[1] * 10000)
-    return (seed)
 
 
 def load_maze(filepath: str) -> Optional[tuple]:
@@ -46,9 +40,8 @@ def load_maze(filepath: str) -> Optional[tuple]:
         if (data is None):
             return (None)
 
-        seed = coords_to_seed(data.ENTRY, data.EXIT)
-
-        generator = MazeGenerator(data.WIDTH, data.HEIGHT, seed, data.PERFECT)
+        generator = MazeGenerator(data.WIDTH, data.HEIGHT, data.SEED,
+                                  data.PERFECT)
         generator.generate()
         maze = generator.get_maze()
 
@@ -73,7 +66,6 @@ def load_maze(filepath: str) -> Optional[tuple]:
         entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH, data.HEIGHT)
         exit_cell = grid_to_cell_coords(EXIT, data.WIDTH, data.HEIGHT)
         solution = bfs_cell_path(hex_grid, entry_cell, exit_cell)
-
         return (data, maze, hex_grid, ENTRY, EXIT, solution)
 
     except FileNotFoundError:
@@ -84,9 +76,72 @@ def load_maze(filepath: str) -> Optional[tuple]:
         return (None)
 
 
+def regenerate_maze(data: conf.MazeConfig, seed: int) -> Optional[tuple]:
+    maze: list[list[str]]
+    hex_grid: list[str]
+    entry_cell: tuple[int, int]
+    exit_cell: tuple[int, int]
+    solution: str
+    ENTRY: list[int]
+    EXIT: list[int]
+
+    try:
+        generator = MazeGenerator(data.WIDTH, data.HEIGHT, seed, data.PERFECT)
+        generator.generate()
+        maze = generator.get_maze()
+
+        ENTRY = list(data.ENTRY)
+        EXIT = list(data.EXIT)
+
+        num_cells_x = data.WIDTH // 2
+        num_cells_y = data.HEIGHT // 2
+        start_cx = (num_cells_x - 7) // 2
+        start_cy = (num_cells_y - 5) // 2
+
+        if (data.WIDTH >= 7 and data.HEIGHT >= 5):
+            if (MazeGenerator.check_collision(start_cx, start_cy, ENTRY)):
+                ENTRY = [0, 1]
+            if (MazeGenerator.check_collision(start_cx, start_cy, EXIT)):
+                EXIT = [data.WIDTH - 1, data.HEIGHT - 2]
+
+        conf.set_entry_exit(maze, ENTRY, EXIT)
+        hex_grid = maze_to_hex_grid(maze, data.WIDTH, data.HEIGHT)
+        entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH, data.HEIGHT)
+        exit_cell = grid_to_cell_coords(EXIT, data.WIDTH, data.HEIGHT)
+        solution = bfs_cell_path(hex_grid, entry_cell, exit_cell)
+        return (data, maze, hex_grid, ENTRY, EXIT, solution)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return (None)
+
+
+def update_seed_in_config(filepath: str, seed: int) -> None:
+    lines: list[str]
+    found: bool
+    i: int
+
+    try:
+        with (open(filepath, 'r') as f):
+            lines = f.readlines()
+        found = False
+        i = 0
+        while (i < len(lines)):
+            if (lines[i].startswith('SEED=')):
+                lines[i] = f'SEED={seed}\n'
+                found = True
+            i += 1
+        if (not found):
+            lines.append(f'SEED={seed}\n')
+        with (open(filepath, 'w') as f):
+            f.writelines(lines)
+    except Exception as e:
+        print(f"Aviso: no se pudo actualizar el config: {e}")
+
+
 def print_menu() -> None:
     """Print the interactive menu options."""
-    print("\n1. Cargar nuevo mapa")
+    print("\n1. Regenerar mapa aleatorio")
     print("2. Guardar mapa")
     print("3. Alternar visibilidad de la ruta (On/Off)")
     print("4. Cambiar color del laberinto")
@@ -101,13 +156,12 @@ def get_path_coords(entry: list[int], exit_val: list[int],
                                     (exit_val[0], exit_val[1])}
     cx_cell, cy_cell = entry_cell
 
-    # Coordenada base del primer pasillo en la matriz cruda
     rx, ry = (cx_cell * 2) + 1, (cy_cell * 2) + 1
     coords.add((rx, ry))
 
     for move in solution:
         if move == 'N':
-            coords.add((rx, ry - 1))  # Añade la pared rota
+            coords.add((rx, ry - 1))
             cy_cell -= 1
         elif move == 'S':
             coords.add((rx, ry + 1))
@@ -149,7 +203,9 @@ def print_colored_maze(maze: list[list[str]],
         row_str = ""
         x = 0
         while x < len(maze[y]):
-            is_in_42 = has_42 and (start_cx <= x < start_cx + 7) and (start_cy <= y < start_cy + 5)
+            is_in_42 = (has_42
+                        and (start_cx <= x < start_cx + 7)
+                        and (start_cy <= y < start_cy + 5))
             if maze[y][x] == 'x':
                 row_str += COLORS["verde"] + "🟢" + COLORS["reset"]
             elif maze[y][x] == 'o':
@@ -173,12 +229,14 @@ def run_menu(filepath: str) -> int:
     color_list = ["blanco", "cyan", "magenta", "rojo", "verde"]
     current_color_idx = 0
     path_coords: set[tuple[int, int]] = set()
+    current_seed: int
 
     result = load_maze(filepath)
     if (result is None):
         return (1)
 
     data, maze, hex_grid, ENTRY, EXIT, solution = result
+    current_seed = data.SEED if (data.SEED is not None) else 0
 
     entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH, data.HEIGHT)
     exit_cell = grid_to_cell_coords(EXIT, data.WIDTH, data.HEIGHT)
@@ -203,15 +261,10 @@ def run_menu(filepath: str) -> int:
             return (0)
 
         if (choice == '1'):
-            try:
-                new_path = input("Ruta del nuevo config: ").strip()
-            except (EOFError, KeyboardInterrupt):
-                print("\nSaliendo...")
-                return (0)
-
-            new_result = load_maze(new_path)
+            current_seed = random.randint(0, 2**31 - 1)
+            new_result = regenerate_maze(data, current_seed)
             if (new_result is None):
-                print("Error al cargar. Se mantiene el mapa actual.")
+                print("Error al regenerar el mapa.")
             else:
                 data, maze, hex_grid, ENTRY, EXIT, solution = new_result
                 entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH,
@@ -226,8 +279,9 @@ def run_menu(filepath: str) -> int:
 
         elif (choice == '2'):
             write_output_file(data.OUTPUT_FILE, hex_grid, ENTRY, EXIT,
-                              solution)
-            print(f"Mapa guardado en: {data.OUTPUT_FILE}")
+                              solution, current_seed)
+            update_seed_in_config(filepath, current_seed)
+            print(f"Mapa guardado en: {data.OUTPUT_FILE} (SEED={current_seed})")
 
         elif (choice == '3'):
             show_path = not show_path
