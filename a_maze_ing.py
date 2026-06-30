@@ -14,7 +14,8 @@ import sys
 import random
 from typing import IO, Optional
 from src import parser, conf
-from src.bfs_path_finder import bfs_shortest_path
+from src.output import (maze_to_hex_grid, grid_to_cell_coords,
+                        bfs_cell_path, write_output_file)
 from mazegen.mazegen import check_collision, draw_pattern_42, generate_maze
 
 
@@ -22,12 +23,17 @@ def coords_to_seed(entry: tuple[int, int], exit_val: tuple[int, int]) -> int:
     seed = (entry[0] * 1000) + (entry[1] * 100000) + (exit_val[0] * 10) + (exit_val[1] * 10000)
     return (seed)
 
+
 def main(ac: int, av: list[str]) -> int:
     fd: bytes
     f: IO[bytes]
     map: dict
     data: Optional[conf.MazeConfig]
     maze: list[list[str]]
+    hex_grid: list[str]
+    entry_cell: tuple[int, int]
+    exit_cell: tuple[int, int]
+    solution: str
 
     if (ac != 2):
         print(f"Porgram use: Python3 {sys.argv[0]} <file>")
@@ -52,15 +58,19 @@ def main(ac: int, av: list[str]) -> int:
         if (check_collision(2, 2, EXIT)):
             print("⚠️ WARNING: EXIT movida por conflicto con patrón 42.")
             EXIT = [data.WIDTH - 1, data.HEIGHT - 2]
-        conf.set_entry_exit(maze, list(data.ENTRY), list(data.EXIT))
+        conf.set_entry_exit(maze, ENTRY, EXIT)
         conf.print_map(maze)
-        solution = bfs_shortest_path(maze, ENTRY[0], ENTRY[1],
-                                     EXIT[0], EXIT[1])
-        if solution:
+        hex_grid = maze_to_hex_grid(maze, data.WIDTH, data.HEIGHT)
+        entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH, data.HEIGHT)
+        exit_cell = grid_to_cell_coords(EXIT, data.WIDTH, data.HEIGHT)
+        solution = bfs_cell_path(hex_grid, entry_cell, exit_cell)
+        if (solution):
             print(f"Camino más corto encontrado: {solution}")
         else:
             print("No se ha encontrado ninguna ruta válida"
-                  "(quizás el patrón 42 o una pared bloquean el paso).")
+                  " (quizás el patrón 42 o una pared bloquean el paso).")
+        write_output_file(data.OUTPUT_FILE, hex_grid, ENTRY, EXIT, solution)
+        print(f"Maze guardado en: {data.OUTPUT_FILE}")
     except FileNotFoundError:
         print(f"Error: The file '{av[1]}' was not found.")
         return (1)
