@@ -1,33 +1,10 @@
-# *************************************************************************** #
-#                                                                             #
-#                                                        :::      ::::::::    #
-#    bfs_path_finder.py                                :+:      :+:    :+:    #
-#                                                    +:+ +:+         +:+      #
-#    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
-#                                                +#+#+#+#+#+   +#+            #
-#    Created: 2026/06/17 15:34:41 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/30 09:00:00 by agarcia2        ###   ########.fr        #
-#                                                                             #
-# *************************************************************************** #
-
 from collections import deque
 
 
 def reconstruct_path(
         came_from: dict[tuple[int, int], tuple[tuple[int, int], str]],
         start_x: int, start_y: int, exit_x: int, exit_y: int) -> str:
-    """Rebuild the direction string by walking came_from back to start.
 
-    Args:
-        came_from: Maps each position to (previous position, direction taken).
-        start_x: X coordinate of the starting position.
-        start_y: Y coordinate of the starting position.
-        exit_x: X coordinate of the goal position.
-        exit_y: Y coordinate of the goal position.
-
-    Returns:
-        String of directions (N/E/S/W) from start to exit.
-    """
     curr_x, curr_y = exit_x, exit_y
     path: list[str] = []
 
@@ -42,20 +19,7 @@ def reconstruct_path(
 
 def bfs_shortest_path(maze: list[list[str]], start_x: int, start_y: int,
                       exit_x: int, exit_y: int) -> str:
-    """Find the shortest path in the character grid using BFS.
 
-    Traverses ' ' and 'o' cells. Used for terminal display of the solution.
-
-    Args:
-        maze: Character grid (' ' = passage, '|' = wall, 'o' = exit).
-        start_x: Entry column in the grid.
-        start_y: Entry row in the grid.
-        exit_x: Exit column in the grid.
-        exit_y: Exit row in the grid.
-
-    Returns:
-        Direction string (N/E/S/W) or empty string if no path exists.
-    """
     directions = [
         (0, -1, 'N'),
         (1, 0, 'E'),

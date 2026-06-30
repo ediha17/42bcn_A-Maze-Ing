@@ -52,40 +52,6 @@ def init_conf(map: dict) -> Optional[MazeConfig]:
         return (None)
 
 
-def init_maze(width: int, height: int) -> list[list[str]]:
-    """Allocate a WIDTH x HEIGHT grid filled with '|' (all walls closed).
-
-    Dimensions below 3 are clamped to 3.
-
-    Args:
-        width: Number of columns.
-        height: Number of rows.
-
-    Returns:
-        2D list of '|' characters.
-    """
-    map: list[list[str]]
-    row: list[str]
-    i: int
-    j: int
-
-    if (width < 3):
-        width = 3
-    if (height < 3):
-        height = 3
-    map = []
-    i = 0
-    while (i < height):
-        row = []
-        j = 0
-        while (j < width):
-            row.append('|')
-            j += 1
-        i += 1
-        map.append(row)
-    return (map)
-
-
 def set_entry_exit(maze: list[list[str]], ent: list[int],
                    ext: list[int]) -> None:
     """Mark entry ('x') and exit ('o') and open the adjacent passages.

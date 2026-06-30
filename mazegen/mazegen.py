@@ -1,6 +1,5 @@
 import random
 from typing import Optional
-from src.conf import init_maze
 
 
 class MazeGenerator:
@@ -25,7 +24,7 @@ class MazeGenerator:
             self._width = 3
         if (self._height < 3):
             self._height = 3
-        self._maze = init_maze(self._width, self._height)
+        self._maze = self._init_grid(self._width, self._height)
 
         if (self._width >= 7 and self._height >= 5):
             start_x = (self._width - 7) // 2
@@ -82,6 +81,25 @@ class MazeGenerator:
     def check_collision(start_x: int, start_y: int, pos: list[int]) -> bool:
         return ((start_x <= pos[0] < start_x + 7)
                 and (start_y <= pos[1] < start_y + 5))
+
+    @staticmethod
+    def _init_grid(width: int, height: int) -> list[list[str]]:
+        grid: list[list[str]]
+        row: list[str]
+        i: int
+        j: int
+
+        grid = []
+        i = 0
+        while (i < height):
+            row = []
+            j = 0
+            while (j < width):
+                row.append('|')
+                j += 1
+            grid.append(row)
+            i += 1
+        return (grid)
 
     @staticmethod
     def _dfs(maze: list[list[str]], x: int, y: int,
