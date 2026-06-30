@@ -20,13 +20,11 @@ class MazeGenerator:
             random.seed(seed)
 
     def generate(self) -> None:
-        if (self._width < 3):
-            self._width = 3
-        if (self._height < 3):
-            self._height = 3
+        if (self._width < 3 or self._height < 3):
+            raise RuntimeError('Maze dimensions must be at least 3x3.')
         self._maze = self._init_grid(self._width, self._height)
 
-        if (self._width >= 7 and self._height >= 5):
+        if (self._width >= 9 and self._height >= 7):
             start_x = (self._width - 7) // 2
             start_y = (self._height - 5) // 2
 
@@ -42,13 +40,16 @@ class MazeGenerator:
                     self._maze[start_y + y][start_x + x] = '*'
                     x += 1
                 y += 1
+        else:
+            print("Error: The maze size does not allow the '42' pattern.")
 
-        self._maze[1][1] = ' '
         self._dfs(self._maze, 1, 1, self._width, self._height)
+
         if (not self._perfect):
             self._add_cycles(self._maze, self._width, self._height)
 
-        if (self._width >= 7 and self._height >= 5):
+        # 2. Dibujamos el 42 definitivo respetando los nuevos límites
+        if (self._width >= 9 and self._height >= 7):
             self.draw_pattern_42(self._maze, start_x, start_y)
 
     @staticmethod

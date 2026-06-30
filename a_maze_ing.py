@@ -48,24 +48,40 @@ def load_maze(filepath: str) -> Optional[tuple]:
         ENTRY = list(data.ENTRY)
         EXIT = list(data.EXIT)
 
-        num_cells_x = data.WIDTH // 2
-        num_cells_y = data.HEIGHT // 2
-        start_cx = (num_cells_x - 7) // 2
-        start_cy = (num_cells_y - 5) // 2
-
         if (data.WIDTH >= 7 and data.HEIGHT >= 5):
-            if (MazeGenerator.check_collision(start_cx, start_cy, ENTRY)):
+            start_cx = (data.WIDTH - 7) // 2
+            start_cy = (data.HEIGHT - 5) // 2
+            if start_cx % 2 == 0:
+                start_cx += 1
+            if start_cy % 2 == 0:
+                start_cy += 1
+
+            char_entry = [ENTRY[0] * 2 + 1, ENTRY[1] * 2 + 1]
+            char_exit = [EXIT[0] * 2 + 1, EXIT[1] * 2 + 1]
+
+            if (MazeGenerator.check_collision(start_cx, start_cy, char_entry)):
                 print("WARNING: ENTRY movida por conflicto con patron 42.")
-                ENTRY = [0, 1]
-            if (MazeGenerator.check_collision(start_cx, start_cy, EXIT)):
+                ENTRY = [0, 0]
+            if (MazeGenerator.check_collision(start_cx, start_cy, char_exit)):
                 print("WARNING: EXIT movida por conflicto con patron 42.")
-                EXIT = [data.WIDTH - 1, data.HEIGHT - 2]
+                # Movemos la salida a la celda de la esquina inferior derecha
+                EXIT = [(data.WIDTH - 3) // 2, (data.HEIGHT - 3) // 2]
+        
+        max_cx = (data.WIDTH - 1) // 2 - 1
+        max_cy = (data.HEIGHT - 1) // 2 - 1
+        ENTRY[0] = max(0, min(ENTRY[0], max_cx))
+        ENTRY[1] = max(0, min(ENTRY[1], max_cy))
+        EXIT[0] = max(0, min(EXIT[0], max_cx))
+        EXIT[1] = max(0, min(EXIT[1], max_cy))
 
         conf.set_entry_exit(maze, ENTRY, EXIT)
         hex_grid = maze_to_hex_grid(maze, data.WIDTH, data.HEIGHT)
-        entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH, data.HEIGHT)
-        exit_cell = grid_to_cell_coords(EXIT, data.WIDTH, data.HEIGHT)
+
+        # Como ENTRY y EXIT ya son celdas, las pasamos directamente al BFS
+        entry_cell = (ENTRY[0], ENTRY[1])
+        exit_cell = (EXIT[0], EXIT[1])
         solution = bfs_cell_path(hex_grid, entry_cell, exit_cell)
+
         return (data, maze, hex_grid, ENTRY, EXIT, solution)
 
     except FileNotFoundError:
@@ -148,31 +164,31 @@ def print_menu() -> None:
     print("5. Salir")
 
 
-def get_path_coords(entry: list[int], exit_val: list[int],
-                    entry_cell: tuple[int, int],
+def get_path_coords(entry_cell: tuple[int, int],
                     solution: str) -> set[tuple[int, int]]:
 
-    coords: set[tuple[int, int]] = {(entry[0], entry[1]),
-                                    (exit_val[0], exit_val[1])}
+    coords: set[tuple[int, int]] = set()
     cx_cell, cy_cell = entry_cell
 
+    # Añadimos la celda inicial exacta en formato de coordenadas de la matriz
     rx, ry = (cx_cell * 2) + 1, (cy_cell * 2) + 1
     coords.add((rx, ry))
 
     for move in solution:
         if move == 'N':
-            coords.add((rx, ry - 1))
+            coords.add((rx, ry - 1))  # Añade la pared rota al norte
             cy_cell -= 1
         elif move == 'S':
-            coords.add((rx, ry + 1))
+            coords.add((rx, ry + 1))  # Añade la pared rota al sur
             cy_cell += 1
         elif move == 'E':
-            coords.add((rx + 1, ry))
+            coords.add((rx + 1, ry))  # Añade la pared rota al este
             cx_cell += 1
         elif move == 'W':
-            coords.add((rx - 1, ry))
+            coords.add((rx - 1, ry))  # Añade la pared rota al oeste
             cx_cell -= 1
 
+        # Añadimos la siguiente celda a la que nos hemos movido
         rx, ry = (cx_cell * 2) + 1, (cy_cell * 2) + 1
         coords.add((rx, ry))
 
@@ -241,7 +257,7 @@ def run_menu(filepath: str) -> int:
     entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH, data.HEIGHT)
     exit_cell = grid_to_cell_coords(EXIT, data.WIDTH, data.HEIGHT)
     if (solution):
-        path_coords = get_path_coords(ENTRY, EXIT, entry_cell, solution)
+        path_coords = get_path_coords(entry_cell, solution)
 
     while (True):
         print("\n" + "="*50)
@@ -272,16 +288,16 @@ def run_menu(filepath: str) -> int:
                 exit_cell = grid_to_cell_coords(EXIT, data.WIDTH,
                                                 data.HEIGHT)
                 if (solution):
-                    path_coords = get_path_coords(ENTRY, EXIT, entry_cell,
-                                                  solution)
+                    path_coords = get_path_coords(entry_cell, solution)
                 else:
                     path_coords = set()
 
         elif (choice == '2'):
             write_output_file(data.OUTPUT_FILE, hex_grid, ENTRY, EXIT,
-                              solution, current_seed)
+                              solution)
             update_seed_in_config(filepath, current_seed)
-            print(f"Mapa guardado en: {data.OUTPUT_FILE} (SEED={current_seed})")
+            print(f"Mapa guardado en: {data.OUTPUT_FILE}"
+                  f"(SEED={current_seed})")
 
         elif (choice == '3'):
             show_path = not show_path
