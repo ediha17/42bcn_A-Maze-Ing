@@ -1,12 +1,12 @@
 # *************************************************************************** #
 #                                                                             #
 #                                                        :::      ::::::::    #
-#    a_maze_ing.py                                     :+:      :+:    :+:    #
+#    a_maze_ing.py                                      :+:      :+:    :+:    #
 #                                                    +:+ +:+         +:+      #
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 15:34:41 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/30 09:00:00 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/30 15:42:14 by ehorvat          ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -17,6 +17,19 @@ from src import parser, conf
 from src.output import (maze_to_hex_grid, grid_to_cell_coords,
                         bfs_cell_path, write_output_file)
 from mazegen.mazegen import check_collision, draw_pattern_42, generate_maze
+
+# Colores para el laberinto
+COLORS = {
+    "blanco": "\033[97m",
+    "rojo": "\033[91m",
+    "verde": "\033[92m",
+    "azul": "\033[94m",
+    "amarillo": "\033[93m",
+    "magenta": "\033[95m",
+    "cyan": "\033[96m",
+    "reset": "\033[0m",
+    "bg_azul": "\033[44m"
+}
 
 
 def coords_to_seed(entry: tuple[int, int], exit_val: tuple[int, int]) -> int:
@@ -86,66 +99,155 @@ def print_menu() -> None:
     """Print the interactive menu options."""
     print("\n1. Cargar nuevo mapa")
     print("2. Guardar mapa")
-    print("3. Salir")
-    return (None)
+    print("3. Alternar visibilidad de la ruta (On/Off)")
+    print("4. Cambiar color del laberinto")
+    print("5. Salir")
+
+
+def get_path_coords(entry: list[int], exit_val: list[int],
+                    entry_cell: tuple[int, int],
+                    solution: str) -> set[tuple[int, int]]:
+
+    coords: set[tuple[int, int]] = {(entry[0], entry[1]),
+                                    (exit_val[0], exit_val[1])}
+    cx_cell, cy_cell = entry_cell
+
+    # Coordenada base del primer pasillo en la matriz cruda
+    rx, ry = (cx_cell * 2) + 1, (cy_cell * 2) + 1
+    coords.add((rx, ry))
+
+    for move in solution:
+        if move == 'N':
+            coords.add((rx, ry - 1))  # Añade la pared rota
+            cy_cell -= 1
+        elif move == 'S':
+            coords.add((rx, ry + 1))
+            cy_cell += 1
+        elif move == 'E':
+            coords.add((rx + 1, ry))
+            cx_cell += 1
+        elif move == 'W':
+            coords.add((rx - 1, ry))
+            cx_cell -= 1
+
+        rx, ry = (cx_cell * 2) + 1, (cy_cell * 2) + 1
+        coords.add((rx, ry))
+
+    return coords
+
+
+def print_colored_maze(maze: list[list[str]],
+                       path_coords: set[tuple[int, int]],
+                       show_path: bool, wall_color: str) -> None:
+
+    y = 0
+    while y < len(maze):
+        row_str = ""
+        x = 0
+        while x < len(maze[y]):
+            # 1. Pintar Entrada y Salida
+            if maze[y][x] == 'x':
+                row_str += COLORS["verde"] + "🟢" + COLORS["reset"]
+            elif maze[y][x] == 'o':
+                row_str += COLORS["rojo"] + "🔴" + COLORS["reset"]
+            # 2. Pintar el camino (si está activado)
+            elif show_path and (x, y) in path_coords:
+                row_str += COLORS["bg_azul"] + "  " + COLORS["reset"]
+            # 3. Pintar Paredes
+            elif maze[y][x] == '|':
+                # El "42" está fijo en (2,2) hasta (8,6).
+                if 2 <= x < 9 and 2 <= y < 7:
+                    row_str += COLORS["amarillo"] + "██" + COLORS["reset"]
+                else:
+                    row_str += COLORS[wall_color] + "██" + COLORS["reset"]
+            # 4. Pasillos vacíos
+            else:
+                row_str += "  "
+            x += 1
+        print(row_str)
+        y += 1
 
 
 def run_menu(filepath: str) -> int:
-    """Display the maze and run the interactive menu loop.
+    # 1. Variables de estado de la interfaz visual
+    show_path = False
+    color_list = ["blanco", "cyan", "magenta", "rojo", "verde"]
+    current_color_idx = 0
+    path_coords: set[tuple[int, int]] = set()
 
-    Args:
-        filepath: Path to the initial config file.
-
-    Returns:
-        0 on clean exit, 1 if the initial load fails.
-    """
-    data: Optional[conf.MazeConfig]
-    maze: list[list[str]]
-    hex_grid: list[str]
-    ENTRY: list[int]
-    EXIT: list[int]
-    solution: str
-    result: Optional[tuple]
-    choice: str
-    new_path: str
-
+    # 2. Carga inicial del mapa
     result = load_maze(filepath)
     if (result is None):
         return (1)
+
     data, maze, hex_grid, ENTRY, EXIT, solution = result
 
+    # Pre-calculamos las coordenadas visuales del camino si existe solución
+    entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH, data.HEIGHT)
+    if (solution):
+        path_coords = get_path_coords(ENTRY, EXIT, entry_cell, solution)
+
+    # 3. Bucle infinito del menú interactivo
     while (True):
-        conf.print_map(maze)
-        if (solution):
-            print(f"Solucion: {solution}")
-        else:
-            print("Sin solucion disponible.")
+        # Imprimimos el laberinto con las opciones visuales actuales
+        print("\n" + "="*50)
+        print_colored_maze(maze, path_coords, show_path,
+                           color_list[current_color_idx])
+        print("="*50)
+
+        if (not solution):
+            print("Aviso: Sin solucion disponible para este mapa.")
+
         print_menu()
+
+        # Captura de input con protección (Ctrl+C / Ctrl+D)
         try:
-            choice = input("Elige una opcion: ").strip()
+            choice = input("Elige una opcion (1-5): ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\nSaliendo...")
             return (0)
+
+        # 4. Gestión de las opciones
         if (choice == '1'):
             try:
                 new_path = input("Ruta del nuevo config: ").strip()
             except (EOFError, KeyboardInterrupt):
                 print("\nSaliendo...")
                 return (0)
-            result = load_maze(new_path)
-            if (result is None):
+
+            new_result = load_maze(new_path)
+            if (new_result is None):
                 print("Error al cargar. Se mantiene el mapa actual.")
-                continue
-            data, maze, hex_grid, ENTRY, EXIT, solution = result
+            else:
+                # Si carga bien, actualizamos TODAS las variables
+                data, maze, hex_grid, ENTRY, EXIT, solution = new_result
+                entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH,
+                                                 data.HEIGHT)
+                if (solution):
+                    path_coords = get_path_coords(ENTRY, EXIT, entry_cell,
+                                                  solution)
+                else:
+                    path_coords = set()
+
         elif (choice == '2'):
-            write_output_file(data.OUTPUT_FILE, hex_grid, ENTRY, EXIT, solution)
+            write_output_file(data.OUTPUT_FILE, hex_grid, ENTRY, EXIT,
+                              solution)
             print(f"Mapa guardado en: {data.OUTPUT_FILE}")
+
         elif (choice == '3'):
+            # Alterna entre True y False
+            show_path = not show_path
+
+        elif (choice == '4'):
+            # Avanza al siguiente color en la lista de forma cíclica
+            current_color_idx = (current_color_idx + 1) % len(color_list)
+
+        elif (choice == '5'):
             print("Saliendo...")
             return (0)
+
         else:
-            print("Opcion no valida. Elige 1, 2 o 3.")
-    return (0)
+            print("Opcion no valida. Elige un numero del 1 al 5.")
 
 
 def main(ac: int, av: list[str]) -> int:

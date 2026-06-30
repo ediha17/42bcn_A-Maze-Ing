@@ -1,12 +1,12 @@
 # *************************************************************************** #
 #                                                                             #
 #                                                        :::      ::::::::    #
-#    conf.py                                           :+:      :+:    :+:    #
+#    conf.py                                            :+:      :+:    :+:    #
 #                                                    +:+ +:+         +:+      #
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 15:42:49 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/30 09:00:00 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/30 16:14:15 by ehorvat          ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -60,6 +60,11 @@ def init_conf(map: dict) -> Optional[MazeConfig]:
         return (None)
     if (not parser.check_patern42(map["WIDTH"], map["HEIGHT"])):
         return (None)
+
+    if map["WIDTH"] % 2 == 0:
+        map["WIDTH"] += 1
+    if map["HEIGHT"] % 2 == 0:
+        map["HEIGHT"] += 1
     try:
         map['PERFECT'] = (map['PERFECT'] == "True")
         return (MazeConfig(**map))

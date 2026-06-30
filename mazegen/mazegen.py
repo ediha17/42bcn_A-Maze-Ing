@@ -1,12 +1,12 @@
 # *************************************************************************** #
 #                                                                             #
 #                                                        :::      ::::::::    #
-#    mazegen.py                                        :+:      :+:    :+:    #
+#    mazegen.py                                         :+:      :+:    :+:    #
 #                                                    +:+ +:+         +:+      #
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/22 17:46:50 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/30 09:00:00 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/30 16:05:21 by ehorvat          ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -65,14 +65,27 @@ class MazeGenerator:
         if (not self._perfect):
             _add_cycles(self._maze, self._width, self._height)
 
-    def draw_pattern_42(self, start_x: int, start_y: int) -> None:
-        """Stamp the '42' pattern onto the maze as closed (wall) cells.
-
-        Args:
-            start_x: Top-left x position of the 5x5 pattern in the grid.
-            start_y: Top-left y position of the 5x5 pattern in the grid.
-        """
-        _draw_pattern_42(self._maze, start_x, start_y)
+    @staticmethod
+    def draw_pattern_42(maze: list[list[str]],
+                        start_x: int, start_y: int) -> None:
+        pattern = [
+            "1010111",
+            "1010001",
+            "1110111",
+            "0010100",
+            "0010111"
+        ]
+        y = 0
+        while y < len(pattern):
+            x = 0
+            while x < len(pattern[y]):
+                if start_y + y < len(maze) and start_x + x < len(maze[0]):
+                    if pattern[y][x] == '1':
+                        maze[start_y + y][start_x + x] = '|'
+                    else:
+                        maze[start_y + y][start_x + x] = ' '
+                x += 1
+            y += 1
 
     def get_maze(self) -> list[list[str]]:
         """Return the internal character grid.
@@ -94,7 +107,7 @@ class MazeGenerator:
         Returns:
             True if pos is inside the pattern bounding box.
         """
-        return ((start_x <= pos[0] < start_x + 5)
+        return ((start_x <= pos[0] < start_x + 7)
                 and (start_y <= pos[1] < start_y + 5))
 
 
