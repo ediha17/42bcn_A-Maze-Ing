@@ -54,6 +54,8 @@ def init_conf(map: dict) -> Optional[MazeConfig]:
 def init_maze(width: int, height: int) -> list[list[str]]:
     """Allocate a WIDTH x HEIGHT grid filled with '|' (all walls closed).
 
+    Dimensions below 3 are clamped to 3.
+
     Args:
         width: Number of columns.
         height: Number of rows.
@@ -66,6 +68,10 @@ def init_maze(width: int, height: int) -> list[list[str]]:
     i: int
     j: int
 
+    if (width < 3):
+        width = 3
+    if (height < 3):
+        height = 3
     map = []
     i = 0
     while (i < height):

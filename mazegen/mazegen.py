@@ -1,5 +1,6 @@
 import random
 from typing import Optional
+from src.conf import init_maze
 
 
 class MazeGenerator:
@@ -19,11 +20,12 @@ class MazeGenerator:
             random.seed(seed)
 
     def generate(self) -> None:
-        if (self._width < 3 or self._height < 3):
-            raise RuntimeError('Maze dimensions must be at least 3x3.')
-        self._maze = self._init_grid(self._width, self._height)
+        if (self._width < 3):
+            self._width = 3
+        if (self._height < 3):
+            self._height = 3
+        self._maze = init_maze(self._width, self._height)
 
-        # 1. Calculamos el centro y bloqueamos la zona antes del DFS
         if (self._width >= 7 and self._height >= 5):
             start_x = (self._width - 7) // 2
             start_y = (self._height - 5) // 2
@@ -33,7 +35,6 @@ class MazeGenerator:
             if start_y % 2 == 0:
                 start_y += 1
 
-            # Llenamos la caja de 7x5 con '*' para que el DFS no entre
             y = 0
             while y < 5:
                 x = 0
@@ -41,15 +42,12 @@ class MazeGenerator:
                     self._maze[start_y + y][start_x + x] = '*'
                     x += 1
                 y += 1
-        else:
-            print("Error: The maze size does not allow the '42' pattern.")
 
-        # 2. Generamos el laberinto esquivando la caja bloqueada
+        self._maze[1][1] = ' '
         self._dfs(self._maze, 1, 1, self._width, self._height)
         if (not self._perfect):
             self._add_cycles(self._maze, self._width, self._height)
 
-        # 3. Dibujamos el "42" definitivo sobre la caja
         if (self._width >= 7 and self._height >= 5):
             self.draw_pattern_42(self._maze, start_x, start_y)
 
@@ -69,7 +67,7 @@ class MazeGenerator:
             while x < len(pattern[y]):
                 if start_y + y < len(maze) and start_x + x < len(maze[0]):
                     # Los 1 son paredes normales, los 0 son pasillos aislados
-                    if pattern[y][x] == '1':
+                    if (pattern[y][x] == '1'):
                         maze[start_y + y][start_x + x] = '|'
                     else:
                         maze[start_y + y][start_x + x] = ' '
@@ -83,26 +81,6 @@ class MazeGenerator:
     def check_collision(start_x: int, start_y: int, pos: list[int]) -> bool:
         return ((start_x <= pos[0] < start_x + 7)
                 and (start_y <= pos[1] < start_y + 5))
-
-    @staticmethod
-    def _init_grid(width: int, height: int) -> list[list[str]]:
-        grid: list[list[str]]
-        row: list[str]
-        i: int
-        j: int
-
-        grid = []
-        i = 0
-        while (i < height):
-            row = []
-            j = 0
-            while (j < width):
-                row.append('|')
-                j += 1
-            grid.append(row)
-            i += 1
-        grid[0][0] = ' '
-        return (grid)
 
     @staticmethod
     def _dfs(maze: list[list[str]], x: int, y: int,
