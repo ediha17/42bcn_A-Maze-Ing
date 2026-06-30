@@ -6,11 +6,23 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 18:57:59 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/17 20:33:30 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/30 09:00:00 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
+
 def ft_parser(fd: bytes) -> dict:
+    """Parse a KEY=VALUE config file from raw bytes.
+
+    Lines starting with '#' and empty lines are ignored. Values that
+    can be cast to int are stored as int; otherwise as str.
+
+    Args:
+        fd: Raw file contents as bytes.
+
+    Returns:
+        Dict mapping each key (str) to its parsed value (int or str).
+    """
     map: dict
     lines: list[str]
     parts: list[str]
@@ -35,6 +47,14 @@ def ft_parser(fd: bytes) -> dict:
 
 
 def ft_parser_map(map: dict) -> bool:
+    """Validate that all required config keys are present.
+
+    Args:
+        map: Parsed config dict.
+
+    Returns:
+        True if all required keys exist, False otherwise.
+    """
     req: list[str]
     i: int
 
@@ -49,6 +69,14 @@ def ft_parser_map(map: dict) -> bool:
 
 
 def ft_parser_coords(raw: str) -> list[int]:
+    """Parse a 'x,y' coordinate string into a two-element int list.
+
+    Args:
+        raw: Coordinate string in the form 'x,y' (whitespace is stripped).
+
+    Returns:
+        [x, y] on success, or [-1, -1] if the format is invalid.
+    """
     new: list[str]
     coords: list[int]
     i: int
@@ -69,6 +97,15 @@ def ft_parser_coords(raw: str) -> list[int]:
 
 
 def check_patern42(width: int, heigth: int) -> bool:
+    """Return True if the maze is large enough to display the '42' pattern.
+
+    Args:
+        width: Maze grid width.
+        heigth: Maze grid height.
+
+    Returns:
+        False and prints an error if either dimension is below 7.
+    """
     if (width < 7 or heigth < 7):
         print("Error: The maze size does not allow the '42' pattern.")
         return (False)

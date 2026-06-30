@@ -6,7 +6,7 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 15:42:49 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/24 11:44:37 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/06/30 09:00:00 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -16,6 +16,8 @@ from src import parser
 
 
 class MazeConfig(BaseModel):
+    """Validated configuration for a maze generation run."""
+
     WIDTH: int = Field(gt=0)
     HEIGHT: int = Field(gt=0)
     ENTRY: Tuple[int, int]
@@ -26,6 +28,17 @@ class MazeConfig(BaseModel):
     @field_validator('ENTRY', 'EXIT', mode='before')
     @classmethod
     def validate_coords(cls: object, v: str) -> Optional[tuple]:
+        """Parse and validate a coordinate value from the config dict.
+
+        Args:
+            v: Raw string 'x,y' or already-parsed tuple.
+
+        Returns:
+            Tuple (x, y) on success.
+
+        Raises:
+            ValueError: If the coordinate string is malformed.
+        """
         if isinstance(v, str):
             res = parser.ft_parser_coords(v)
             if (res[0] == -1):
@@ -34,8 +47,15 @@ class MazeConfig(BaseModel):
         return (v)
 
 
-
 def init_conf(map: dict) -> Optional[MazeConfig]:
+    """Validate a parsed config dict and return a MazeConfig instance.
+
+    Args:
+        map: Dict produced by ft_parser().
+
+    Returns:
+        A MazeConfig on success, or None if validation fails.
+    """
     if (not parser.ft_parser_map(map)):
         return (None)
     if (not parser.check_patern42(map["WIDTH"], map["HEIGHT"])):
@@ -49,6 +69,15 @@ def init_conf(map: dict) -> Optional[MazeConfig]:
 
 
 def init_maze(width: int, height: int) -> list[list[str]]:
+    """Allocate a WIDTH x HEIGHT grid filled with '|' (all walls closed).
+
+    Args:
+        width: Number of columns.
+        height: Number of rows.
+
+    Returns:
+        2D list of '|' characters.
+    """
     map: list[list[str]]
     row: list[str]
     i: int
@@ -69,6 +98,13 @@ def init_maze(width: int, height: int) -> list[list[str]]:
 
 def set_entry_exit(maze: list[list[str]], ent: list[int],
                    ext: list[int]) -> None:
+    """Mark entry ('x') and exit ('o') and open the adjacent passages.
+
+    Args:
+        maze: Character grid to modify in-place.
+        ent: [x, y] grid position of the entry.
+        ext: [x, y] grid position of the exit.
+    """
     maze[ent[1]][ent[0]] = 'x'
     maze[ext[1]][ext[0]] = 'o'
     if (ent[0] == 0):
@@ -87,6 +123,11 @@ def set_entry_exit(maze: list[list[str]], ent: list[int],
 
 
 def print_map(maze: list[list[str]]) -> None:
+    """Print the maze character grid to stdout.
+
+    Args:
+        maze: 2D list representing the maze.
+    """
     i: int
 
     if (not maze):
