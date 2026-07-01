@@ -1,5 +1,3 @@
-from collections import deque
-
 def maze_to_hex_grid(
         maze: list[list[str]], width: int, height: int) -> list[str]:
     rows: list[str]
@@ -39,63 +37,6 @@ def grid_to_cell_coords(
     if (pos[0] == width - 1):
         return ((width - 3) // 2, (pos[1] - 1) // 2)
     return ((pos[0] - 1) // 2, (height - 3) // 2)
-
-
-def _reconstruct_cell_path(
-        came_from: dict[tuple[int, int], tuple[tuple[int, int], str]],
-        start: tuple[int, int],
-        end: tuple[int, int]) -> str:
-    path: list[str]
-    curr: tuple[int, int]
-    prev: tuple[int, int]
-    move: str
-
-    path = []
-    curr = end
-    while (curr != start):
-        prev, move = came_from[curr]
-        path.append(move)
-        curr = prev
-    path.reverse()
-    return (''.join(path))
-
-
-def bfs_cell_path(
-        hex_grid: list[str],
-        start: tuple[int, int],
-        end: tuple[int, int]) -> str:
-    directions: list[tuple[int, int, str, int]]
-    num_rows: int
-    num_cols: int
-    queue: deque[tuple[int, int]]
-    visited: set[tuple[int, int]]
-    came_from: dict[tuple[int, int], tuple[tuple[int, int], str]]
-    cx: int
-    cy: int
-    cell_val: int
-
-    directions = [(0, -1, 'N', 1), (1, 0, 'E', 2),
-                  (0, 1, 'S', 4), (-1, 0, 'W', 8)]
-    num_rows = len(hex_grid)
-    num_cols = len(hex_grid[0]) if (num_rows > 0) else 0
-    queue = deque([start])
-    visited = {start}
-    came_from = {}
-
-    while (queue):
-        cx, cy = queue.popleft()
-        if ((cx, cy) == end):
-            return (_reconstruct_cell_path(came_from, start, end))
-        cell_val = int(hex_grid[cy][cx], 16)
-        for dx, dy, move, bit in directions:
-            if (not (cell_val & bit)):
-                nx, ny = cx + dx, cy + dy
-                if (0 <= nx < num_cols and 0 <= ny < num_rows
-                        and (nx, ny) not in visited):
-                    visited.add((nx, ny))
-                    came_from[(nx, ny)] = ((cx, cy), move)
-                    queue.append((nx, ny))
-    return ('')
 
 
 def write_output_file(path: str, hex_rows: list[str],
