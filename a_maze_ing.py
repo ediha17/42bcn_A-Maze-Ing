@@ -55,6 +55,9 @@ def load_maze(filepath: str,
         ENTRY = list(data.ENTRY)
         EXIT = list(data.EXIT)
 
+        orig_entry = list(ENTRY)
+        orig_exit = list(EXIT)
+
         seed_to_use = (new_seed if (new_seed is not None)
                        else getattr(data, 'SEED', 0))
 
@@ -91,6 +94,15 @@ def load_maze(filepath: str,
         ENTRY[1] = max(0, min(ENTRY[1], max_cy))
         EXIT[0] = max(0, min(EXIT[0], max_cx))
         EXIT[1] = max(0, min(EXIT[1], max_cy))
+
+        if (orig_entry != ENTRY):
+            print(f"Error: La entrada (ENTRY) ha sido movida"
+                  f"de {orig_entry} a {ENTRY} "
+                  "por límites del mapa o conflicto con el patrón 42.")
+        if (orig_exit != EXIT):
+            print(f"Error: La salida (EXIT) ha sido movida"
+                  f"de {orig_exit} a {EXIT} "
+                  f"por límites del mapa o conflicto con el patrón 42.")
 
         conf.set_entry_exit(maze, ENTRY, EXIT)
         hex_grid = maze_to_hex_grid(maze, data.WIDTH, data.HEIGHT)
@@ -215,6 +227,7 @@ def run_menu(filepath: str) -> int:
         path_coords = get_path_coords(entry_cell, solution)
 
     while (True):
+
         print("\n" + "=" * 50)
         print_colored_maze(maze, path_coords, show_path,
                            color_list[current_color_idx])
