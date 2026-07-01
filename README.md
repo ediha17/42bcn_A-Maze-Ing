@@ -145,3 +145,17 @@ pip install mazegen-1.0.0-py3-none-any.whl
 - mypy — static type checking
 - build / setuptools / wheel — packaging
 - git — version control (conventional commits)
+
+## Resources
+ 
+| Link | Uso |
+|---|---|
+| [Python 3.11 Docs](https://docs.python.org/3.11/) | Referencia del lenguaje y de la librería estándar utilizada en el proyecto. |
+| [Pydantic v2 Docs](https://docs.pydantic.dev/latest/) | Guía para implementar la validación del archivo de configuración. |
+| [Python Packaging User Guide](https://packaging.python.org/) | Consultado para empaquetar `mazegen` como wheel/sdist con `build`/`setuptools`. |
+| [Recursive Backtracker Maze Algorithm](https://en.wikipedia.org/wiki/Maze_generation_algorithm) | Referencia teórica del algoritmo DFS elegido para la generación de laberintos. |
+| [Breadth-First Search (BFS)](https://en.wikipedia.org/wiki/Breadth-first_search) | Base teórica del algoritmo usado para resolver el laberinto y garantizar el camino más corto. |
+| [Conventional Commits](https://www.conventionalcommits.org/) | Estándar seguido para los mensajes de commit del control de versiones con git. |
+| [Vídeo de YouTube](https://youtu.be/Yt-UF7fNLJE?si=f8vu6kFAG01WT1CD) | Recurso audiovisual consultado durante el desarrollo del proyecto. |
+| [W3Schools — Python](https://www.w3schools.com/python/default.asp) | Tutorial y referencia rápida de Python utilizada como apoyo durante el desarrollo. |
+ 
