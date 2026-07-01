@@ -96,6 +96,28 @@ def test_parser_map_perfect_invalid_int() -> None:
     assert (ft_parser_map(_base_map(0)) is False)
 
 
+def test_parser_map_seed_valid() -> None:
+    m = _base_map('True')
+    m['SEED'] = 42
+    assert (ft_parser_map(m) is True)
+
+
+def test_parser_map_seed_negative_valid() -> None:
+    m = _base_map('True')
+    m['SEED'] = -1
+    assert (ft_parser_map(m) is True)
+
+
+def test_parser_map_seed_absent_valid() -> None:
+    assert (ft_parser_map(_base_map('True')) is True)
+
+
+def test_parser_map_seed_string_invalid() -> None:
+    m = _base_map('True')
+    m['SEED'] = 'abc'
+    assert (ft_parser_map(m) is False)
+
+
 # ── ft_parser_coords ────────────────────────────────────────────────────────
 
 def test_coords_basic() -> None:
