@@ -1,4 +1,5 @@
 import random
+import sys
 from typing import Optional
 
 
@@ -43,6 +44,8 @@ class MazeGenerator:
         else:
             print("Error: The maze size does not allow the '42' pattern.")
 
+        sys.setrecursionlimit(max(sys.getrecursionlimit(),
+                                  self._width * self._height))
         self._dfs(self._maze, 1, 1, self._width, self._height)
 
         if (not self._perfect):
