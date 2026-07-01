@@ -6,7 +6,7 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.co  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/22 18:21:55 by agarcia2          #+#    #+#              #
-#    Updated: 2026/06/22 18:22:17 by agarcia2         ###   ########.fr        #
+#    Updated: 2026/07/01 00:17:01 by agarcia2         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,3 +14,4 @@
 __pycache__/
 *.pyc
 *.pyo
+maze_standard.txt

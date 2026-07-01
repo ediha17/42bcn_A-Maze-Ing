@@ -1,6 +1,5 @@
 from collections import deque
 
-
 def maze_to_hex_grid(
         maze: list[list[str]], width: int, height: int) -> list[str]:
     rows: list[str]
@@ -101,7 +100,7 @@ def bfs_cell_path(
 
 def write_output_file(path: str, hex_rows: list[str],
                       entry: list[int], exit_: list[int],
-                      solution: str) -> None:
+                      solution: str, seed: int) -> None:
     i: int
 
     with open(path, 'w') as f:
@@ -112,5 +111,6 @@ def write_output_file(path: str, hex_rows: list[str],
         f.write('\n')
         f.write(f"{entry[0]},{entry[1]}\n")
         f.write(f"{exit_[0]},{exit_[1]}\n")
+        f.write(f"{seed}\n")
         f.write(solution + '\n')
     return (None)
