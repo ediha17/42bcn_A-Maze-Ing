@@ -46,15 +46,12 @@ def set_entry_exit(maze: list[list[str]], ent: list[int],
     for is_entry, pos in [(True, ent), (False, ext)]:
         cx, cy = pos
 
-        # SISTEMA DE SEGURIDAD: Mantenemos la coordenada dentro del mapa
         cx = max(0, min(cx, max_cx))
         cy = max(0, min(cy, max_cy))
 
-        # Calculamos el centro del pasillo
         char_x = cx * 2 + 1
         char_y = cy * 2 + 1
 
-        # Colocamos el icono directamente en el pasillo, sin tocar los muros
         maze[char_y][char_x] = 'x' if is_entry else 'o'
 
 

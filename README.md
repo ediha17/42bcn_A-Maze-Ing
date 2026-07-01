@@ -1,11 +1,6 @@
 # A-Maze-Ing
 
-A maze generator and solver written in Python 3.11. Generates random mazes
-with a configurable size, entry/exit points, and an optional "42" pattern
-stamped into the grid. The solution path is computed with BFS and written to
-an output file in hexadecimal encoding.
-
----
+A maze generator and solver written in Python 3.11. Generates random mazes with a configurable size, entry/exit points, and a "42" pattern seamlessly stamped into the grid if dimensions allow. Features an interactive terminal interface to visualize the maze, toggle the solution path, and regenerate maps on the fly. The solution path is computed with BFS and written to an output file in hexadecimal encoding.
 
 ## Usage
 
@@ -19,22 +14,18 @@ Example:
 python3 a_maze_ing.py config_standard.txt
 ```
 
----
-
 ## Config file format
 
 `KEY=VALUE` pairs, one per line. Lines starting with `#` are comments.
 
 | Key | Type | Description | Example |
 |---|---|---|---|
-| `WIDTH` | int | Character-grid width (≥ 7) | `WIDTH=20` |
-| `HEIGHT` | int | Character-grid height (≥ 7) | `HEIGHT=15` |
-| `ENTRY` | x,y | Entry point (grid coordinates) | `ENTRY=0,1` |
-| `EXIT` | x,y | Exit point (grid coordinates) | `EXIT=19,13` |
-| `OUTPUT_FILE` | str | Path for the hex output file | `OUTPUT_FILE=maze.txt` |
-| `PERFECT` | bool | `True` = unique path; `False` = cycles | `PERFECT=True` |
-
----
+| WIDTH | int | Number of horizontal cells (passageways) | `WIDTH=20` |
+| HEIGHT | int | Number of vertical cells (passageways) | `HEIGHT=15` |
+| ENTRY | x,y | Entry point (cell coordinates) | `ENTRY=0,1` |
+| EXIT | x,y | Exit point (cell coordinates) | `EXIT=19,13` |
+| OUTPUT_FILE | str | Path for the hex output file | `OUTPUT_FILE=maze.txt` |
+| PERFECT | bool | True = unique path; False = cycles | `PERFECT=True` |
 
 ## Output file format
 
@@ -46,11 +37,12 @@ The output file contains:
    - bit 2 = South wall closed
    - bit 3 = West wall closed
 2. A blank line.
-3. Entry coordinates (`x,y`).
-4. Exit coordinates (`x,y`).
-5. Solution path as a sequence of `N`/`E`/`S`/`W` directions.
+3. Entry coordinates (x,y).
+4. Exit coordinates (x,y).
+5. Solution path as a sequence of N/E/S/W directions.
 
 Example:
+
 ```
 157D1395
 AFFD6C6B
@@ -61,24 +53,16 @@ AFFD6C6B
 SSEESWNE
 ```
 
----
-
 ## Algorithm
 
 **Recursive Backtracker (DFS)**
 
 We chose this algorithm because:
-- It produces mazes with long, winding corridors and a single clear solution
-  path when `PERFECT=True` — the grid becomes a spanning tree.
-- Implementation is straightforward with no external data structures beyond
-  the call stack.
-- When `PERFECT=False`, a post-processing pass randomly removes ~15 % of
-  remaining interior walls to introduce cycles.
 
-The solution is found with **BFS on the hex-encoded cell graph**, which
-guarantees the shortest path in unweighted grids.
-
----
+- It produces mazes with long, winding corridors and a single clear solution path when `PERFECT=True` — the grid becomes a spanning tree.
+- Implementation is straightforward with no external data structures beyond the call stack.
+- When `PERFECT=False`, a post-processing pass randomly removes ~15% of remaining interior walls to introduce cycles.
+- The solution is found with BFS on the hex-encoded cell graph, which guarantees the shortest path in unweighted grids.
 
 ## Reusable module — mazegen
 
@@ -95,7 +79,6 @@ from mazegen import MazeGenerator
 
 mg = MazeGenerator(width=9, height=9, seed=42, perfect=True)
 mg.generate()
-mg.draw_pattern_42(start_x=2, start_y=2)
 maze = mg.get_maze()          # list[list[str]] character grid
 ```
 
@@ -105,8 +88,6 @@ To rebuild from source:
 make build
 pip install mazegen-1.0.0-py3-none-any.whl
 ```
-
----
 
 ## Makefile rules
 
@@ -120,59 +101,61 @@ pip install mazegen-1.0.0-py3-none-any.whl
 | `make build` | Build wheel and sdist |
 | `make reinstall` | Force-reinstall the local wheel |
 
----
-
 ## Team & roles
 
 | Member | Role |
 |---|---|
-| **agarcia2** | Maze generation (DFS), config parser, hex output, BFS solver, packaging |
-| **< compañero >** | *(fill in)* |
-
----
+| agarcia2 | Maze generation (DFS), config parser, hex output, BFS solver, packaging |
+| ehorvat | Interactive UI, path visualization, error handling, coordinate mapping, '42' pattern integration |
 
 ## Planning & evolution
 
-1. **Week 1** — Config parser, maze grid representation, DFS generator.
-2. **Week 2** — BFS path-finder, "42" pattern, entry/exit handling.
-3. **Week 3** — Hex output format, `MazeGenerator` class, pip packaging.
-4. **Week 4** — Docstrings, pytest test suite, Makefile, README.
+- **Week 1** — Config parser, maze grid representation, DFS generator.
+- **Week 2** — BFS path-finder, "42" pattern, entry/exit handling.
+- **Week 3** — Hex output format, MazeGenerator class, pip packaging.
+- **Week 4** — Interactive terminal UI, visual path-finding, edge-case safety, README.
 
-Key decisions:
-- Used **Pydantic** for config validation — catches type errors and missing
-  keys with clear messages, avoiding manual validation boilerplate.
-- Chose a **character grid** (not a bitmask array) as the internal
-  representation so the ASCII terminal display is trivial.
-- Kept a **cell-level BFS** in `src/output.py` separate from the
-  character-grid BFS — this guarantees the solution in the output file uses
-  correct cell-to-cell directions.
+### Key decisions
 
----
+- Used Pydantic for config validation — catches type errors and missing keys with clear messages, avoiding manual validation boilerplate.
+- Chose a character grid (not a bitmask array) as the internal representation so the ASCII terminal display is trivial.
+- Kept a cell-level BFS in `src/output.py` separate from the character-grid BFS — this guarantees the solution in the output file uses correct cell-to-cell directions.
+- Decoupled logic cell count (WIDTH/HEIGHT) from character grid constraints to ensure accurate exterior walls and 100% playable maps.
 
 ## What worked / what could be improved
 
-**Worked well**
+### Worked well
+
 - The DFS produces dense, solvable mazes consistently.
 - Pydantic validation gives useful error messages with zero boilerplate.
 - The hex encoding conversion is clean and testable in isolation.
+- Terminal visualization is fully interactive; regenerating maps, swapping colors, and toggling the shortest path makes the demo extremely engaging.
+- The '42' pattern acts as a natural wall boundary, allowing the maze corridors to flow through its internal gaps organically.
 
-**Could be improved**
-- A second generation algorithm (Prim / Kruskal) would give maze variety and
-  cover the bonus points.
-- The character-grid representation ties WIDTH/HEIGHT to grid coordinates
-  rather than logical cell counts — a future version should use a bitmask
-  array of size WIDTH × HEIGHT for the cell graph directly.
-- Terminal visualisation is static; interactive re-generation and
-  show/hide-path would improve the demo.
+### Could be improved
 
----
+- A second generation algorithm (Prim / Kruskal) would give maze variety and cover the bonus points.
 
 ## Tools used
 
-- **Python 3.11** — main language
-- **Pydantic v2** — config validation
-- **pytest** — test suite
-- **flake8** — PEP 8 linting
-- **mypy** — static type checking
-- **build / setuptools / wheel** — packaging
-- **git** — version control (conventional commits)
+- Python 3.11 — main language
+- Pydantic v2 — config validation
+- pytest — test suite
+- flake8 — PEP 8 linting
+- mypy — static type checking
+- build / setuptools / wheel — packaging
+- git — version control (conventional commits)
+
+## Resources
+ 
+| Link | Uso |
+|---|---|
+| [Python 3.11 Docs](https://docs.python.org/3.11/) | Referencia del lenguaje y de la librería estándar utilizada en el proyecto. |
+| [Pydantic v2 Docs](https://docs.pydantic.dev/latest/) | Guía para implementar la validación del archivo de configuración. |
+| [Python Packaging User Guide](https://packaging.python.org/) | Consultado para empaquetar `mazegen` como wheel/sdist con `build`/`setuptools`. |
+| [Recursive Backtracker Maze Algorithm](https://en.wikipedia.org/wiki/Maze_generation_algorithm) | Referencia teórica del algoritmo DFS elegido para la generación de laberintos. |
+| [Breadth-First Search (BFS)](https://en.wikipedia.org/wiki/Breadth-first_search) | Base teórica del algoritmo usado para resolver el laberinto y garantizar el camino más corto. |
+| [Conventional Commits](https://www.conventionalcommits.org/) | Estándar seguido para los mensajes de commit del control de versiones con git. |
+| [Vídeo de YouTube](https://youtu.be/Yt-UF7fNLJE?si=f8vu6kFAG01WT1CD) | Recurso audiovisual consultado durante el desarrollo del proyecto. |
+| [W3Schools — Python](https://www.w3schools.com/python/default.asp) | Tutorial y referencia rápida de Python utilizada como apoyo durante el desarrollo. |
+ 

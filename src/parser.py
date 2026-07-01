@@ -1,7 +1,7 @@
 # *************************************************************************** #
 #                                                                             #
 #                                                        :::      ::::::::    #
-#    parser.py                                         :+:      :+:    :+:    #
+#    parser.py                                          :+:      :+:    :+:    #
 #                                                    +:+ +:+         +:+      #
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
@@ -61,14 +61,7 @@ def ft_parser_map(map: dict) -> bool:
 
 
 def ft_parser_coords(raw: str) -> list[int]:
-    """Parse a 'x,y' coordinate string into a two-element int list.
 
-    Args:
-        raw: Coordinate string in the form 'x,y' (whitespace is stripped).
-
-    Returns:
-        [x, y] on success, or [-1, -1] if the format is invalid.
-    """
     new: list[str]
     coords: list[int]
     i: int
@@ -89,15 +82,6 @@ def ft_parser_coords(raw: str) -> list[int]:
 
 
 def check_patern42(width: int, heigth: int) -> bool:
-    """Return True if the maze is large enough to display the '42' pattern.
-
-    Args:
-        width: Maze grid width.
-        heigth: Maze grid height.
-
-    Returns:
-        False and prints an error if either dimension is below 7.
-    """
     if (width < 7 or heigth < 7):
         print("Error: The maze size does not allow the '42' pattern.")
         return (False)
