@@ -25,6 +25,15 @@ class MazeGenerator:
             raise RuntimeError('Maze dimensions must be at least 3x3.')
         self._maze = self._init_grid(self._width, self._height)
 
+        # El patrón que define nuestro 42
+        pattern = [
+            "1010111",
+            "1010001",
+            "1110111",
+            "0010100",
+            "0010111"
+        ]
+
         if (self._width >= 9 and self._height >= 7):
             start_x = (self._width - 7) // 2
             start_y = (self._height - 5) // 2
@@ -35,10 +44,11 @@ class MazeGenerator:
                 start_y += 1
 
             y = 0
-            while y < 5:
+            while y < len(pattern):
                 x = 0
-                while x < 7:
-                    self._maze[start_y + y][start_x + x] = '*'
+                while x < len(pattern[y]):
+                    if pattern[y][x] == '1':
+                        self._maze[start_y + y][start_x + x] = '*'
                     x += 1
                 y += 1
         else:
