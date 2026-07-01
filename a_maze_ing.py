@@ -253,10 +253,17 @@ def run_menu(filepath: str) -> int:
                     path_coords = set()
 
         elif (choice == '2'):
-            write_output_file(data.OUTPUT_FILE, hex_grid, ENTRY, EXIT,
-                              solution, current_seed)
-            print(f"Mapa guardado en: {data.OUTPUT_FILE}"
-                  f"(SEED={current_seed})")
+            try:
+                write_output_file(data.OUTPUT_FILE, hex_grid, ENTRY, EXIT,
+                                  solution, current_seed)
+                print(f"Mapa guardado con éxito en: {data.OUTPUT_FILE} "
+                      f"(SEED={current_seed})")
+            except PermissionError:
+                print("\nError: Permiso denegado."
+                      f"No se puede guardar en '{data.OUTPUT_FILE}'.")
+                print("Comprueba los permisos del archivo o del directorio.")
+            except Exception as e:
+                print(f"\nError inesperado al guardar el mapa: {e}")
 
         elif (choice == '3'):
             show_path = not show_path
