@@ -110,29 +110,6 @@ def load_maze(filepath: str,
         return (None)
 
 
-def update_seed_in_config(filepath: str, seed: int) -> None:
-    lines: list[str]
-    found: bool
-    i: int
-
-    try:
-        with (open(filepath, 'r') as f):
-            lines = f.readlines()
-        found = False
-        i = 0
-        while (i < len(lines)):
-            if (lines[i].startswith('SEED=')):
-                lines[i] = f'SEED={seed}\n'
-                found = True
-            i += 1
-        if (not found):
-            lines.append(f'SEED={seed}\n')
-        with (open(filepath, 'w') as f):
-            f.writelines(lines)
-    except Exception as e:
-        print(f"Aviso: no se pudo actualizar el config: {e}")
-
-
 def print_menu() -> None:
     """Print the interactive menu options."""
     print("\n1. Regenerar mapa aleatorio")
@@ -274,7 +251,6 @@ def run_menu(filepath: str) -> int:
         elif (choice == '2'):
             write_output_file(data.OUTPUT_FILE, hex_grid, ENTRY, EXIT,
                               solution, current_seed)
-            update_seed_in_config(filepath, current_seed)
             print(f"Mapa guardado en: {data.OUTPUT_FILE}"
                   f"(SEED={current_seed})")
 
