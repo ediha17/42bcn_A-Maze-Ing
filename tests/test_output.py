@@ -127,7 +127,7 @@ def test_write_output_format(tmp_path: pytest.TempPathFactory) -> None:
     """Output file must match the subject format exactly."""
     out = str(tmp_path / 'maze_test.txt')
     hex_rows = ['ABC', 'DEF']
-    write_output_file(out, hex_rows, [0, 1], [9, 7], 'SESE')
+    write_output_file(out, hex_rows, [0, 1], [9, 7], 'SESE', 42)
     with open(out) as f:
         lines = f.readlines()
     assert (lines[0] == 'ABC\n')
@@ -135,4 +135,18 @@ def test_write_output_format(tmp_path: pytest.TempPathFactory) -> None:
     assert (lines[2] == '\n')
     assert (lines[3] == '0,1\n')
     assert (lines[4] == '9,7\n')
-    assert (lines[5] == 'SESE\n')
+    assert (lines[5] == '42\n')
+    assert (lines[6] == 'SESE\n')
+
+
+# ── BREAKING ─────────────────────────────────────────────────────────────────
+
+def test_write_output_invalid_path() -> None:
+    """write_output_file raises FileNotFoundError for non-existent directories."""
+    write_output_file('/no/existe/maze.txt', ['ABC'], [0, 1], [8, 7], 'SE', 0)
+
+
+def test_cell_coords_interior_position() -> None:
+    """Interior positions have no branch — silently fall to bottom-border formula."""
+    result = grid_to_cell_coords([5, 5], 20, 15)
+    assert (result == (2, 2))
