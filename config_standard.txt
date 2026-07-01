@@ -11,4 +11,3 @@ EXIT=18,13
 # Configuracion extra
 OUTPUT_FILE=maze_standard.txt
 PERFECT=True
-SEED=1474917928
