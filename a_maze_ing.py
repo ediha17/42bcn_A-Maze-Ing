@@ -207,8 +207,11 @@ def run_menu(filepath: str) -> int:
         return (1)
 
     data, maze, hex_grid, ENTRY, EXIT, solution = result
-    current_seed = data.SEED if (data.SEED is not None) else 0
-
+    current_seed = data.SEED
+    if (data.SEED is not None):
+        pass
+    else:
+        current_seed = random.randint(0, 2**31 - 1)
     entry_cell = (ENTRY[0], ENTRY[1])
     exit_cell = (EXIT[0], EXIT[1])
     if (solution):
@@ -233,6 +236,7 @@ def run_menu(filepath: str) -> int:
 
         if (choice == '1'):
             current_seed = random.randint(0, 2**31 - 1)
+            data.SEED = current_seed
             # Llamamos a load_maze pasándole la ruta y la nueva semilla
             new_result = load_maze(filepath, current_seed)
 
