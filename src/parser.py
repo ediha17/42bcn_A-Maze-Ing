@@ -6,23 +6,12 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 18:57:59 by agarcia2         #+#    #+#              #
-#    Updated: 2026/07/01 00:33:53 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/07/01 14:41:30 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
 
 def ft_parser(fd: bytes) -> dict:
-    """Parse a KEY=VALUE config file from raw bytes.
-
-    Lines starting with '#' and empty lines are ignored. Values that
-    can be cast to int are stored as int; otherwise as str.
-
-    Args:
-        fd: Raw file contents as bytes.
-
-    Returns:
-        Dict mapping each key (str) to its parsed value (int or str).
-    """
     map: dict
     lines: list[str]
     parts: list[str]
@@ -51,14 +40,6 @@ def ft_parser(fd: bytes) -> dict:
 
 
 def ft_parser_map(map: dict) -> bool:
-    """Validate that all required config keys are present.
-
-    Args:
-        map: Parsed config dict.
-
-    Returns:
-        True if all required keys exist, False otherwise.
-    """
     req: list[str]
     i: int
 
@@ -72,9 +53,10 @@ def ft_parser_map(map: dict) -> bool:
     if (map["PERFECT"] not in ("True", "False")):
         print("Error: PERFECT must be 'True' or 'False'")
         return (False)
-    if ("SEED" in map and not isinstance(map["SEED"], int)):
-        print("Error: SEED must be an integer")
-        return (False)
+    if ("SEED" in map):
+        if (not isinstance(map["SEED"], int) or map["SEED"] == 0):
+            print("Error: SEED must be a non-zero integer")
+            return (False)
     return (True)
 
 
