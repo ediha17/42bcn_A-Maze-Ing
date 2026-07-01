@@ -3,7 +3,8 @@ import random
 from typing import IO, Optional
 from src import parser, conf
 from src.output import (maze_to_hex_grid, grid_to_cell_coords,
-                        bfs_cell_path, write_output_file)
+                        write_output_file)
+from src.bfs_path_finder import bfs_shortest_path
 from mazegen.mazegen import MazeGenerator
 
 COLORS = {
@@ -19,6 +20,28 @@ COLORS = {
 }
 
 
+def _cell_to_char_pos(cell: list[int],
+                      width: int, height: int) -> tuple[int, int]:
+    max_cx: int
+    max_cy: int
+    cx: int
+    cy: int
+
+    max_cx = (width - 1) // 2 - 1
+    max_cy = (height - 1) // 2 - 1
+    cx, cy = cell[0], cell[1]
+    if (cx == 0):
+        return (0, cy * 2 + 1)
+    elif (cx >= max_cx):
+        return (cx * 2 + 2, cy * 2 + 1)
+    elif (cy == 0):
+        return (cx * 2 + 1, 0)
+    elif (cy >= max_cy):
+        return (cx * 2 + 1, cy * 2 + 2)
+    else:
+        return (cx * 2 + 1, cy * 2 + 1)
+
+
 def load_maze(filepath: str) -> Optional[tuple]:
     fd: bytes
     f: IO[bytes]
@@ -26,8 +49,11 @@ def load_maze(filepath: str) -> Optional[tuple]:
     data: Optional[conf.MazeConfig]
     maze: list[list[str]]
     hex_grid: list[str]
-    entry_cell: tuple[int, int]
-    exit_cell: tuple[int, int]
+    ex: int
+    ey: int
+    ox: int
+    oy: int
+    raw_path: str
     solution: str
     ENTRY: list[int]
     EXIT: list[int]
@@ -66,7 +92,6 @@ def load_maze(filepath: str) -> Optional[tuple]:
                 print("WARNING: EXIT movida por conflicto con patron 42.")
                 # Movemos la salida a la celda de la esquina inferior derecha
                 EXIT = [(data.WIDTH - 3) // 2, (data.HEIGHT - 3) // 2]
-        
         max_cx = (data.WIDTH - 1) // 2 - 1
         max_cy = (data.HEIGHT - 1) // 2 - 1
         ENTRY[0] = max(0, min(ENTRY[0], max_cx))
@@ -77,10 +102,10 @@ def load_maze(filepath: str) -> Optional[tuple]:
         conf.set_entry_exit(maze, ENTRY, EXIT)
         hex_grid = maze_to_hex_grid(maze, data.WIDTH, data.HEIGHT)
 
-        # Como ENTRY y EXIT ya son celdas, las pasamos directamente al BFS
-        entry_cell = (ENTRY[0], ENTRY[1])
-        exit_cell = (EXIT[0], EXIT[1])
-        solution = bfs_cell_path(hex_grid, entry_cell, exit_cell)
+        ex, ey = _cell_to_char_pos(ENTRY, data.WIDTH, data.HEIGHT)
+        ox, oy = _cell_to_char_pos(EXIT, data.WIDTH, data.HEIGHT)
+        raw_path = bfs_shortest_path(maze, ex, ey, ox, oy)
+        solution = raw_path[1:-1:2]
 
         return (data, maze, hex_grid, ENTRY, EXIT, solution)
 
@@ -95,8 +120,11 @@ def load_maze(filepath: str) -> Optional[tuple]:
 def regenerate_maze(data: conf.MazeConfig, seed: int) -> Optional[tuple]:
     maze: list[list[str]]
     hex_grid: list[str]
-    entry_cell: tuple[int, int]
-    exit_cell: tuple[int, int]
+    ex: int
+    ey: int
+    ox: int
+    oy: int
+    raw_path: str
     solution: str
     ENTRY: list[int]
     EXIT: list[int]
@@ -122,9 +150,10 @@ def regenerate_maze(data: conf.MazeConfig, seed: int) -> Optional[tuple]:
 
         conf.set_entry_exit(maze, ENTRY, EXIT)
         hex_grid = maze_to_hex_grid(maze, data.WIDTH, data.HEIGHT)
-        entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH, data.HEIGHT)
-        exit_cell = grid_to_cell_coords(EXIT, data.WIDTH, data.HEIGHT)
-        solution = bfs_cell_path(hex_grid, entry_cell, exit_cell)
+        ex, ey = _cell_to_char_pos(ENTRY, data.WIDTH, data.HEIGHT)
+        ox, oy = _cell_to_char_pos(EXIT, data.WIDTH, data.HEIGHT)
+        raw_path = bfs_shortest_path(maze, ex, ey, ox, oy)
+        solution = raw_path[1:-1:2]
         return (data, maze, hex_grid, ENTRY, EXIT, solution)
 
     except Exception as e:
@@ -294,7 +323,7 @@ def run_menu(filepath: str) -> int:
 
         elif (choice == '2'):
             write_output_file(data.OUTPUT_FILE, hex_grid, ENTRY, EXIT,
-                              solution)
+                              solution, current_seed)
             update_seed_in_config(filepath, current_seed)
             print(f"Mapa guardado en: {data.OUTPUT_FILE}"
                   f"(SEED={current_seed})")
