@@ -40,41 +40,22 @@ def init_conf(map: dict) -> Optional[MazeConfig]:
 
 def set_entry_exit(maze: list[list[str]], ent: list[int],
                    ext: list[int]) -> None:
-    # Máximo índice de celda posible
     max_cx = (len(maze[0]) - 1) // 2 - 1
     max_cy = (len(maze) - 1) // 2 - 1
 
     for is_entry, pos in [(True, ent), (False, ext)]:
         cx, cy = pos
 
+        # SISTEMA DE SEGURIDAD: Mantenemos la coordenada dentro del mapa
         cx = max(0, min(cx, max_cx))
         cy = max(0, min(cy, max_cy))
 
-        # Coordenada del centro del pasillo en la matriz de caracteres
+        # Calculamos el centro del pasillo
         char_x = cx * 2 + 1
         char_y = cy * 2 + 1
 
-        # Mapeamos a la pared exterior dependiendo de en qué borde esté
-        if cx == 0:
-            wall_x, wall_y = 0, char_y
-            break_x, break_y = 1, char_y
-        elif cx >= max_cx:
-            wall_x, wall_y = char_x + 1, char_y
-            break_x, break_y = char_x, char_y
-        elif cy == 0:
-            wall_x, wall_y = char_x, 0
-            break_x, break_y = char_x, 1
-        elif cy >= max_cy:
-            wall_x, wall_y = char_x, char_y + 1
-            break_x, break_y = char_x, char_y
-        else:
-            wall_x, wall_y = char_x, char_y
-            break_x, break_y = char_x, char_y
-
-        # Colocamos el icono y rompemos la pared hacia adentro
-        maze[wall_y][wall_x] = 'x' if is_entry else 'o'
-        if wall_x != break_x or wall_y != break_y:
-            maze[break_y][break_x] = ' '
+        # Colocamos el icono directamente en el pasillo, sin tocar los muros
+        maze[char_y][char_x] = 'x' if is_entry else 'o'
 
 
 def print_map(maze: list[list[str]]) -> None:

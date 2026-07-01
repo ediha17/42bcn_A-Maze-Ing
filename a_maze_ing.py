@@ -2,8 +2,7 @@ import sys
 import random
 from typing import IO, Optional
 from src import parser, conf
-from src.output import (maze_to_hex_grid, grid_to_cell_coords,
-                        write_output_file)
+from src.output import (maze_to_hex_grid, write_output_file)
 from src.bfs_path_finder import bfs_shortest_path
 from mazegen.mazegen import MazeGenerator
 
@@ -22,24 +21,9 @@ COLORS = {
 
 def _cell_to_char_pos(cell: list[int],
                       width: int, height: int) -> tuple[int, int]:
-    max_cx: int
-    max_cy: int
-    cx: int
-    cy: int
 
-    max_cx = (width - 1) // 2 - 1
-    max_cy = (height - 1) // 2 - 1
     cx, cy = cell[0], cell[1]
-    if (cx == 0):
-        return (0, cy * 2 + 1)
-    elif (cx >= max_cx):
-        return (cx * 2 + 2, cy * 2 + 1)
-    elif (cy == 0):
-        return (cx * 2 + 1, 0)
-    elif (cy >= max_cy):
-        return (cx * 2 + 1, cy * 2 + 2)
-    else:
-        return (cx * 2 + 1, cy * 2 + 1)
+    return (cx * 2 + 1, cy * 2 + 1)
 
 
 def load_maze(filepath: str) -> Optional[tuple]:
@@ -74,7 +58,7 @@ def load_maze(filepath: str) -> Optional[tuple]:
         ENTRY = list(data.ENTRY)
         EXIT = list(data.EXIT)
 
-        if (data.WIDTH >= 7 and data.HEIGHT >= 5):
+        if (data.WIDTH >= 9 and data.HEIGHT >= 7):
             start_cx = (data.WIDTH - 7) // 2
             start_cy = (data.HEIGHT - 5) // 2
             if start_cx % 2 == 0:
@@ -142,7 +126,7 @@ def regenerate_maze(data: conf.MazeConfig, seed: int) -> Optional[tuple]:
         start_cx = (num_cells_x - 7) // 2
         start_cy = (num_cells_y - 5) // 2
 
-        if (data.WIDTH >= 7 and data.HEIGHT >= 5):
+        if (data.WIDTH >= 9 and data.HEIGHT >= 7):
             if (MazeGenerator.check_collision(start_cx, start_cy, ENTRY)):
                 ENTRY = [0, 1]
             if (MazeGenerator.check_collision(start_cx, start_cy, EXIT)):
@@ -231,7 +215,7 @@ def print_colored_maze(maze: list[list[str]],
     width = len(maze[0])
     height = len(maze)
 
-    has_42 = (width >= 7 and height >= 5)
+    has_42 = (width >= 9 and height >= 7)
     start_cx = 0
     start_cy = 0
 
