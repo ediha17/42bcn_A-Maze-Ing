@@ -69,6 +69,33 @@ def test_parser_map_empty_dict() -> None:
     assert (ft_parser_map({}) is False)
 
 
+def _base_map(perfect: object) -> dict:
+    return {
+        'WIDTH': 20, 'HEIGHT': 15,
+        'ENTRY': '0,1', 'EXIT': '19,13',
+        'OUTPUT_FILE': 'maze.txt', 'PERFECT': perfect
+    }
+
+
+def test_parser_map_perfect_false_valid() -> None:
+    assert (ft_parser_map(_base_map('False')) is True)
+
+
+def test_parser_map_perfect_invalid_uppercase() -> None:
+    assert (ft_parser_map(_base_map('TRUE')) is False)
+    assert (ft_parser_map(_base_map('FALSE')) is False)
+
+
+def test_parser_map_perfect_invalid_string() -> None:
+    assert (ft_parser_map(_base_map('maybe')) is False)
+    assert (ft_parser_map(_base_map('NONE')) is False)
+
+
+def test_parser_map_perfect_invalid_int() -> None:
+    assert (ft_parser_map(_base_map(1)) is False)
+    assert (ft_parser_map(_base_map(0)) is False)
+
+
 # ── ft_parser_coords ────────────────────────────────────────────────────────
 
 def test_coords_basic() -> None:
@@ -99,3 +126,10 @@ def test_pattern42_too_small() -> None:
     assert (check_patern42(6, 10) is False)
     assert (check_patern42(10, 6) is False)
     assert (check_patern42(3, 3) is False)
+
+
+# ── BREAKING ─────────────────────────────────────────────────────────────────
+
+def test_parser_invalid_utf8() -> None:
+    """ft_parser crashes with UnicodeDecodeError on non-UTF8 bytes."""
+    ft_parser(b'\xff\xfeWIDTH=20\n')
