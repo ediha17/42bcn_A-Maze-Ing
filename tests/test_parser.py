@@ -112,6 +112,12 @@ def test_parser_map_seed_absent_valid() -> None:
     assert (ft_parser_map(_base_map('True')) is True)
 
 
+def test_parser_map_seed_zero_invalid() -> None:
+    m = _base_map('True')
+    m['SEED'] = 0
+    assert (ft_parser_map(m) is False)
+
+
 def test_parser_map_seed_string_invalid() -> None:
     m = _base_map('True')
     m['SEED'] = 'abc'
