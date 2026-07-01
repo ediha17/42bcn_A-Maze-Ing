@@ -26,7 +26,9 @@ def _cell_to_char_pos(cell: list[int],
     return (cx * 2 + 1, cy * 2 + 1)
 
 
-def load_maze(filepath: str) -> Optional[tuple]:
+def load_maze(filepath: str,
+              new_seed: Optional[int] = None) -> Optional[tuple]:
+
     fd: bytes
     f: IO[bytes]
     raw: dict
@@ -50,13 +52,18 @@ def load_maze(filepath: str) -> Optional[tuple]:
         if (data is None):
             return (None)
 
-        generator = MazeGenerator(data.WIDTH, data.HEIGHT, data.SEED,
-                                  data.PERFECT)
-        generator.generate()
-        maze = generator.get_maze()
-
         ENTRY = list(data.ENTRY)
         EXIT = list(data.EXIT)
+
+        seed_to_use = (new_seed if (new_seed is not None)
+                       else getattr(data, 'SEED', 0))
+
+        data.SEED = seed_to_use
+
+        generator = MazeGenerator(data.WIDTH, data.HEIGHT,
+                                  seed_to_use, data.PERFECT)
+        generator.generate()
+        maze = generator.get_maze()
 
         if (data.WIDTH >= 9 and data.HEIGHT >= 7):
             start_cx = (data.WIDTH - 7) // 2
@@ -74,8 +81,10 @@ def load_maze(filepath: str) -> Optional[tuple]:
                 ENTRY = [0, 0]
             if (MazeGenerator.check_collision(start_cx, start_cy, char_exit)):
                 print("WARNING: EXIT movida por conflicto con patron 42.")
-                # Movemos la salida a la celda de la esquina inferior derecha
                 EXIT = [(data.WIDTH - 3) // 2, (data.HEIGHT - 3) // 2]
+
+        # chequeo de seguridad para que
+        # no se pase de los maximos de la maze
         max_cx = (data.WIDTH - 1) // 2 - 1
         max_cy = (data.HEIGHT - 1) // 2 - 1
         ENTRY[0] = max(0, min(ENTRY[0], max_cx))
@@ -96,50 +105,6 @@ def load_maze(filepath: str) -> Optional[tuple]:
     except FileNotFoundError:
         print(f"Error: The file '{filepath}' was not found.")
         return (None)
-    except Exception as e:
-        print(f"Error: {e}")
-        return (None)
-
-
-def regenerate_maze(data: conf.MazeConfig, seed: int) -> Optional[tuple]:
-    maze: list[list[str]]
-    hex_grid: list[str]
-    ex: int
-    ey: int
-    ox: int
-    oy: int
-    raw_path: str
-    solution: str
-    ENTRY: list[int]
-    EXIT: list[int]
-
-    try:
-        generator = MazeGenerator(data.WIDTH, data.HEIGHT, seed, data.PERFECT)
-        generator.generate()
-        maze = generator.get_maze()
-
-        ENTRY = list(data.ENTRY)
-        EXIT = list(data.EXIT)
-
-        num_cells_x = data.WIDTH // 2
-        num_cells_y = data.HEIGHT // 2
-        start_cx = (num_cells_x - 7) // 2
-        start_cy = (num_cells_y - 5) // 2
-
-        if (data.WIDTH >= 9 and data.HEIGHT >= 7):
-            if (MazeGenerator.check_collision(start_cx, start_cy, ENTRY)):
-                ENTRY = [0, 1]
-            if (MazeGenerator.check_collision(start_cx, start_cy, EXIT)):
-                EXIT = [data.WIDTH - 1, data.HEIGHT - 2]
-
-        conf.set_entry_exit(maze, ENTRY, EXIT)
-        hex_grid = maze_to_hex_grid(maze, data.WIDTH, data.HEIGHT)
-        ex, ey = _cell_to_char_pos(ENTRY, data.WIDTH, data.HEIGHT)
-        ox, oy = _cell_to_char_pos(EXIT, data.WIDTH, data.HEIGHT)
-        raw_path = bfs_shortest_path(maze, ex, ey, ox, oy)
-        solution = raw_path[::2]
-        return (data, maze, hex_grid, ENTRY, EXIT, solution)
-
     except Exception as e:
         print(f"Error: {e}")
         return (None)
@@ -291,13 +256,16 @@ def run_menu(filepath: str) -> int:
 
         if (choice == '1'):
             current_seed = random.randint(0, 2**31 - 1)
-            new_result = regenerate_maze(data, current_seed)
+            # Llamamos a load_maze pasándole la ruta y la nueva semilla
+            new_result = load_maze(filepath, current_seed)
+
             if (new_result is None):
                 print("Error al regenerar el mapa.")
             else:
                 data, maze, hex_grid, ENTRY, EXIT, solution = new_result
                 entry_cell = (ENTRY[0], ENTRY[1])
                 exit_cell = (EXIT[0], EXIT[1])
+
                 if (solution):
                     path_coords = get_path_coords(entry_cell, solution)
                 else:
