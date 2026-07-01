@@ -123,7 +123,6 @@ def load_maze(filepath: str,
 
 
 def print_menu() -> None:
-    """Print the interactive menu options."""
     print("\n1. Regenerar mapa aleatorio")
     print("2. Guardar mapa")
     print("3. Alternar visibilidad de la ruta (On/Off)")
@@ -137,7 +136,6 @@ def get_path_coords(entry_cell: tuple[int, int],
     coords: set[tuple[int, int]] = set()
     cx_cell, cy_cell = entry_cell
 
-    # Añadimos la celda inicial exacta en formato de coordenadas de la matriz
     rx, ry = (cx_cell * 2) + 1, (cy_cell * 2) + 1
     coords.add((rx, ry))
 
@@ -155,7 +153,6 @@ def get_path_coords(entry_cell: tuple[int, int],
             coords.add((rx - 1, ry))  # Añade la pared rota al oeste
             cx_cell -= 1
 
-        # Añadimos la siguiente celda a la que nos hemos movido
         rx, ry = (cx_cell * 2) + 1, (cy_cell * 2) + 1
         coords.add((rx, ry))
 
@@ -246,7 +243,6 @@ def run_menu(filepath: str) -> int:
 
         if (choice == '1'):
             current_seed = random.randint(0, 2**31 - 1)
-            # Llamamos a load_maze pasándole la ruta y la nueva semilla
             new_result = load_maze(filepath, current_seed)
 
             if (new_result is None):
@@ -289,7 +285,6 @@ def run_menu(filepath: str) -> int:
 
 
 def main(ac: int, av: list[str]) -> int:
-    """Entry point. Expects exactly one argument: the config file path."""
     if (ac != 2):
         print(f"Program use: Python3 {sys.argv[0]} <file>")
         return (1)

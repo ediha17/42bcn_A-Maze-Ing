@@ -80,7 +80,6 @@ class MazeGenerator:
             x = 0
             while x < len(pattern[y]):
                 if start_y + y < len(maze) and start_x + x < len(maze[0]):
-                    # Los 1 son paredes normales, los 0 son pasillos aislados
                     if (pattern[y][x] == '1'):
                         maze[start_y + y][start_x + x] = '|'
                     else:
