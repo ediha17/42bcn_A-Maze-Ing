@@ -6,7 +6,7 @@
 #    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/17 18:57:59 by agarcia2         #+#    #+#              #
-#    Updated: 2026/06/30 09:00:00 by agarcia2        ###   ########.fr        #
+#    Updated: 2026/07/01 00:33:53 by agarcia2        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -30,7 +30,11 @@ def ft_parser(fd: bytes) -> dict:
 
     i = 0
     map = {}
-    lines = fd.decode('utf-8').split('\n')
+    try:
+        lines = fd.decode('utf-8').split('\n')
+    except UnicodeDecodeError:
+        print("Error: the configuration file is not valid UTF-8")
+        return ({})
     while (i < len(lines)):
         if (len(lines[i]) == 0 or lines[i][0] == '#'):
             i += 1
@@ -65,6 +69,9 @@ def ft_parser_map(map: dict) -> bool:
             print(f"Error: Missing key {req[i]}")
             return (False)
         i += 1
+    if (map["PERFECT"] not in ("True", "False")):
+        print("Error: PERFECT must be 'True' or 'False'")
+        return (False)
     return (True)
 
 
