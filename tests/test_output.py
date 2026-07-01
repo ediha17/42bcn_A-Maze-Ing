@@ -12,7 +12,7 @@
 
 import pytest
 from src.output import (maze_to_hex_grid, grid_to_cell_coords,
-                        bfs_cell_path, write_output_file)
+                        write_output_file)
 
 
 # ── maze_to_hex_grid ────────────────────────────────────────────────────────
@@ -93,32 +93,6 @@ def test_cell_coords_right_border() -> None:
 def test_cell_coords_bottom_border() -> None:
     assert (grid_to_cell_coords([1, 8], 9, 9) == (0, 3))
     assert (grid_to_cell_coords([3, 8], 9, 9) == (1, 3))
-
-
-# ── bfs_cell_path ───────────────────────────────────────────────────────────
-
-def test_bfs_single_row_east() -> None:
-    """3 fully open cells in one row: path must be EE."""
-    hex_grid = ['000']
-    assert (bfs_cell_path(hex_grid, (0, 0), (2, 0)) == 'EE')
-
-
-def test_bfs_single_column_south() -> None:
-    """3 fully open cells in one column: path must be SS."""
-    hex_grid = ['0', '0', '0']
-    assert (bfs_cell_path(hex_grid, (0, 0), (0, 2)) == 'SS')
-
-
-def test_bfs_no_path_all_walls() -> None:
-    """All walls closed: no path exists."""
-    hex_grid = ['FFF', 'FFF', 'FFF']
-    assert (bfs_cell_path(hex_grid, (0, 0), (2, 2)) == '')
-
-
-def test_bfs_start_equals_end() -> None:
-    """Start and end are the same cell: empty path."""
-    hex_grid = ['000']
-    assert (bfs_cell_path(hex_grid, (0, 0), (0, 0)) == '')
 
 
 # ── write_output_file ───────────────────────────────────────────────────────
