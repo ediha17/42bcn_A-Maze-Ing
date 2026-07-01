@@ -72,6 +72,9 @@ def ft_parser_map(map: dict) -> bool:
     if (map["PERFECT"] not in ("True", "False")):
         print("Error: PERFECT must be 'True' or 'False'")
         return (False)
+    if ("SEED" in map and not isinstance(map["SEED"], int)):
+        print("Error: SEED must be an integer")
+        return (False)
     return (True)
 
 
