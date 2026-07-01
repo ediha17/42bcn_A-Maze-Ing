@@ -105,7 +105,7 @@ def load_maze(filepath: str) -> Optional[tuple]:
         ex, ey = _cell_to_char_pos(ENTRY, data.WIDTH, data.HEIGHT)
         ox, oy = _cell_to_char_pos(EXIT, data.WIDTH, data.HEIGHT)
         raw_path = bfs_shortest_path(maze, ex, ey, ox, oy)
-        solution = raw_path[1:-1:2]
+        solution = raw_path[::2]
 
         return (data, maze, hex_grid, ENTRY, EXIT, solution)
 
@@ -153,7 +153,7 @@ def regenerate_maze(data: conf.MazeConfig, seed: int) -> Optional[tuple]:
         ex, ey = _cell_to_char_pos(ENTRY, data.WIDTH, data.HEIGHT)
         ox, oy = _cell_to_char_pos(EXIT, data.WIDTH, data.HEIGHT)
         raw_path = bfs_shortest_path(maze, ex, ey, ox, oy)
-        solution = raw_path[1:-1:2]
+        solution = raw_path[::2]
         return (data, maze, hex_grid, ENTRY, EXIT, solution)
 
     except Exception as e:
@@ -283,13 +283,13 @@ def run_menu(filepath: str) -> int:
     data, maze, hex_grid, ENTRY, EXIT, solution = result
     current_seed = data.SEED if (data.SEED is not None) else 0
 
-    entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH, data.HEIGHT)
-    exit_cell = grid_to_cell_coords(EXIT, data.WIDTH, data.HEIGHT)
+    entry_cell = (ENTRY[0], ENTRY[1])
+    exit_cell = (EXIT[0], EXIT[1])
     if (solution):
         path_coords = get_path_coords(entry_cell, solution)
 
     while (True):
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print_colored_maze(maze, path_coords, show_path,
                            color_list[current_color_idx])
         print("="*50)
@@ -312,10 +312,8 @@ def run_menu(filepath: str) -> int:
                 print("Error al regenerar el mapa.")
             else:
                 data, maze, hex_grid, ENTRY, EXIT, solution = new_result
-                entry_cell = grid_to_cell_coords(ENTRY, data.WIDTH,
-                                                 data.HEIGHT)
-                exit_cell = grid_to_cell_coords(EXIT, data.WIDTH,
-                                                data.HEIGHT)
+                entry_cell = (ENTRY[0], ENTRY[1])
+                exit_cell = (EXIT[0], EXIT[1])
                 if (solution):
                     path_coords = get_path_coords(entry_cell, solution)
                 else:
