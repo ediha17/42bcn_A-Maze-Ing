@@ -53,15 +53,3 @@ def set_entry_exit(maze: list[list[str]], ent: list[int],
         char_y = cy * 2 + 1
 
         maze[char_y][char_x] = 'x' if is_entry else 'o'
-
-
-def print_map(maze: list[list[str]]) -> None:
-    i: int
-
-    if (not maze):
-        return (None)
-    i = 0
-    while (i < len(maze)):
-        print("".join(maze[i]))
-    i += 1
-    return (None)

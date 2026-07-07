@@ -60,6 +60,7 @@ class MazeGenerator:
 
         if (not self._perfect):
             self._add_cycles(self._maze, self._width, self._height)
+            self._open_pacman_corridors(self._maze, self._width, self._height)
 
         # 2. Dibujamos el 42 definitivo respetando los nuevos límites
         if (self._width >= 9 and self._height >= 7):
@@ -133,6 +134,26 @@ class MazeGenerator:
                 maze[next_y][next_x] = ' '
                 MazeGenerator._dfs(maze, next_x, next_y, width, height)
             i += 1
+
+    @staticmethod
+    def _open_pacman_corridors(maze: list[list[str]], width: int, height: int) -> None:
+        if width > 3 and height > 3:
+            maze[1][2] = ' '
+            maze[2][1] = ' '
+            maze[1][width - 3] = ' '
+            maze[2][width - 2] = ' '
+            maze[height - 3][1] = ' '
+            maze[height - 2][2] = ' '
+            maze[height - 3][width - 2] = ' '
+            maze[height - 2][width - 3] = ' '
+
+        mid_x = ((width - 1) // 4) * 2 + 1
+        mid_y = ((height - 1) // 4) * 2 + 1
+        if 1 < mid_x < width - 2 and 1 < mid_y < height - 2:
+            maze[mid_y - 1][mid_x] = ' '
+            maze[mid_y + 1][mid_x] = ' '
+            maze[mid_y][mid_x - 1] = ' '
+            maze[mid_y][mid_x + 1] = ' '
 
     @staticmethod
     def _add_cycles(maze: list[list[str]], width: int, height: int,

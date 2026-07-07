@@ -28,17 +28,6 @@ def maze_to_hex_grid(
     return (rows)
 
 
-def grid_to_cell_coords(
-        pos: list[int], width: int, height: int) -> tuple[int, int]:
-    if (pos[0] == 0):
-        return (0, (pos[1] - 1) // 2)
-    if (pos[1] == 0):
-        return ((pos[0] - 1) // 2, 0)
-    if (pos[0] == width - 1):
-        return ((width - 3) // 2, (pos[1] - 1) // 2)
-    return ((pos[0] - 1) // 2, (height - 3) // 2)
-
-
 def write_output_file(path: str, hex_rows: list[str],
                       entry: list[int], exit_: list[int],
                       solution: str, seed: int) -> None:
@@ -52,6 +41,5 @@ def write_output_file(path: str, hex_rows: list[str],
         f.write('\n')
         f.write(f"{entry[0]},{entry[1]}\n")
         f.write(f"{exit_[0]},{exit_[1]}\n")
-        f.write(f"{seed}\n")
         f.write(solution + '\n')
     return (None)

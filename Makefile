@@ -1,7 +1,7 @@
 SCRIPT       = a_maze_ing.py
 DEFAULT_CONF = config_standard.txt
 
-.PHONY: all install run debug clean lint lint-strict
+.PHONY: all install run debug clean lint lint-strict build reinstall
 
 all: run
 
@@ -20,6 +20,17 @@ clean:
 	rm -rf mazegen/__pycache__
 	rm -rf .mypy_cache
 	rm -rf .pytest_cache
+	rm -rf dist
+	rm -f *.whl
+	rm -f *.tar.gz
+
+build:
+	poetry build
+	cp dist/*.whl .
+	cp dist/*.tar.gz .
+
+reinstall: build
+	pip install --force-reinstall ./*.whl
 
 lint:
 	poetry run flake8 .

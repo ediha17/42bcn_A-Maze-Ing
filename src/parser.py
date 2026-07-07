@@ -79,10 +79,3 @@ def ft_parser_coords(raw: str) -> list[int]:
         i += 1
 
     return (coords)
-
-
-def check_patern42(width: int, heigth: int) -> bool:
-    if (width < 7 or heigth < 7):
-        print("Error: The maze size does not allow the '42' pattern.")
-        return (False)
-    return (True)
