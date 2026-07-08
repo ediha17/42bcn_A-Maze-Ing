@@ -1,6 +1,6 @@
 import sys
 import random
-from typing import IO, Optional
+from typing import IO, Optional, Any
 from src import parser, conf
 from src.output import (maze_to_hex_grid, write_output_file)
 from src.bfs_path_finder import bfs_shortest_path
@@ -27,11 +27,13 @@ def _cell_to_char_pos(cell: list[int],
 
 
 def load_maze(filepath: str,
-              new_seed: Optional[int] = None) -> Optional[tuple]:
+              new_seed: Optional[int] = None) -> Optional[tuple[
+                  conf.MazeConfig, list[list[str]], list[str],
+                  list[int], list[int], str]]:
 
     fd: bytes
     f: IO[bytes]
-    raw: dict
+    raw: dict[str, Any]
     data: Optional[conf.MazeConfig]
     maze: list[list[str]]
     hex_grid: list[str]
@@ -216,11 +218,8 @@ def run_menu(filepath: str) -> int:
         return (1)
 
     data, maze, hex_grid, ENTRY, EXIT, solution = result
-    current_seed = data.SEED
-    if (data.SEED is not None):
-        pass
-    else:
-        current_seed = random.randint(0, 2**31 - 1)
+    current_seed = (data.SEED if data.SEED is not None else
+                    random.randint(0, 2**31 - 1))
     entry_cell = (ENTRY[0], ENTRY[1])
     exit_cell = (EXIT[0], EXIT[1])
     if (solution):

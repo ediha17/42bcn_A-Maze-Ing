@@ -1,18 +1,8 @@
-# *************************************************************************** #
-#                                                                             #
-#                                                        :::      ::::::::    #
-#    parser.py                                          :+:      :+:    :+:    #
-#                                                    +:+ +:+         +:+      #
-#    By: agarcia2 <agarcia2@student.42barcelona.c  +#+  +:+       +#+         #
-#                                                +#+#+#+#+#+   +#+            #
-#    Created: 2026/06/17 18:57:59 by agarcia2         #+#    #+#              #
-#    Updated: 2026/07/01 14:41:30 by agarcia2        ###   ########.fr        #
-#                                                                             #
-# *************************************************************************** #
+from typing import Any
 
 
-def ft_parser(fd: bytes) -> dict:
-    map: dict
+def ft_parser(fd: bytes) -> dict[str, Any]:
+    map: dict[str, Any]
     lines: list[str]
     parts: list[str]
     i: int
@@ -39,7 +29,7 @@ def ft_parser(fd: bytes) -> dict:
     return (map)
 
 
-def ft_parser_map(map: dict) -> bool:
+def ft_parser_map(map: dict[str, Any]) -> bool:
     req: list[str]
     i: int
 

@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Any, Tuple
 from pydantic import BaseModel, Field, field_validator
 from src import parser
 
@@ -14,16 +14,16 @@ class MazeConfig(BaseModel):
 
     @field_validator('ENTRY', 'EXIT', mode='before')
     @classmethod
-    def validate_coords(cls: object, v: str) -> Optional[tuple]:
+    def validate_coords(cls: object, v: str) -> Optional[tuple[int, int]]:
         if isinstance(v, str):
             res = parser.ft_parser_coords(v)
             if (res[0] == -1):
                 raise ValueError("Coordenadas inválidas")
-            return tuple(res)
+            return (res[0], res[1])
         return (v)
 
 
-def init_conf(map: dict) -> Optional[MazeConfig]:
+def init_conf(map: dict[str, Any]) -> Optional[MazeConfig]:
     if (not parser.ft_parser_map(map)):
         return None
 

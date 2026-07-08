@@ -136,7 +136,9 @@ class MazeGenerator:
             i += 1
 
     @staticmethod
-    def _open_pacman_corridors(maze: list[list[str]], width: int, height: int) -> None:
+    def _open_pacman_corridors(maze: list[list[str]],
+                               width: int, height: int) -> None:
+
         if width > 3 and height > 3:
             maze[1][2] = ' '
             maze[2][1] = ' '
