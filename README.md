@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by <ehorvat> and <agarcia2>.*
+*This project has been created as part of the 42 curriculum by \<ehorvat\> and \<agarcia2\>.*
 
 # A-Maze-Ing
 A maze generator and solver written in Python 3.11. Generates random mazes with a configurable size, entry/exit points, and a "42" pattern seamlessly stamped into the grid if dimensions allow. Features an interactive terminal interface to visualize the maze, toggle the solution path, and regenerate maps on the fly. The solution path is computed with BFS and written to an output file in hexadecimal encoding.
