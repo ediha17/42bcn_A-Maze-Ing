@@ -5,7 +5,7 @@ description = "Proyecto de generación de laberintos de 42"
 authors = ["agarcia2 <agarcia2@student.42barcelona.com>, ehorvat <ehorvat@student.42barcelona.com>"]
 readme = "README.md"
 packages = [{include = "mazegen"}]
-package-mode = false
+package-mode = true 
 
 [tool.poetry.dependencies]
 python = "^3.10"
